@@ -50,10 +50,10 @@ const SignInScreen = () => {
       />
       {/* <Text>{val}</Text> */}
 
-      <SignInUpButton onPress={onSignInPressed} textButton="Sign In" />
+      <SignInUpButton onPress={onSignInPressed} textButton="Masuk" />
       <SignInUpButton
         onPress={onSignUPPressed}
-        textButton="Sign Up"
+        textButton="Daftar"
         type="SECONDARY"
       />
 

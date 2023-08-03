@@ -5,7 +5,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { useContext } from "react";
 import AuthProvider from "./Context/AuthContext";
-
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+const queryClient = new QueryClient();
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -18,8 +19,10 @@ export default function App() {
           {/* <ConfirmEmailScreen /> */}
           {/* <ResetPasswordScreen /> */}
           {/* <NewPasswordScreen /> */}
-          <Navigations />
-          <StatusBar style="auto" />
+          <QueryClientProvider client={queryClient}>
+            <Navigations />
+            <StatusBar style="auto" />
+          </QueryClientProvider>
         </SafeAreaView>
       </AuthProvider>
     </GestureHandlerRootView>

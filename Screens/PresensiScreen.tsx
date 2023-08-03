@@ -9,19 +9,22 @@ import {
   Pressable,
   TouchableOpacity,
   Button,
+  Alert,
 } from "react-native";
 import { NavigationParamList } from "../types/navigation";
 import Icons from "@expo/vector-icons/Ionicons";
 import DropDownPicker from "react-native-dropdown-picker";
 import { AuthContext } from "../Context/AuthContext";
 import * as DocumentPicker from "expo-document-picker";
+import axios from "../services/axios";
+
 // interface IPresensiScreenProps {}
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 
 const PresensiScreen = () => {
   const deviceHeight = Dimensions.get("window").height;
   const deviceWidth = Dimensions.get("window").width;
-  const [pdfUri, setPdfUri] = useState(null);
+  const [pdfUri, setPdfUri] = useState("");
 
   const { userInfo } = useContext(AuthContext);
   const navigation = useNavigation<NavigationProps>();
@@ -53,12 +56,12 @@ const PresensiScreen = () => {
   const pickPdf = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ["image/png", "application/pdf", "image/jpg"],
+        type: ["application/pdf", "image/jpeg", "image/jpg"],
       });
 
       if (result.type === "success") {
-        console.log("PDF picked:", result.uri);
-        setPdfUri(result.uri);
+        console.log("PDF picked:", result.name);
+        setPdfUri(result.name);
       } else {
         console.log("PDF picking was canceled.");
       }
@@ -67,8 +70,50 @@ const PresensiScreen = () => {
     }
   };
 
+  const handleFormSubmit = async () => {
+    try {
+      // Prepare the data to send
+      const dataToSend = {
+        nama: userInfo.user.nama,
+        divisi: userInfo.user.divisi,
+        tanggal: `${new Date().getDate()}/${
+          new Date().getMonth() + 1
+        }/${new Date().getFullYear()}`,
+        status: value,
+        bukti: pdfUri, // Assuming pdfUri is the path or name of the selected PDF file
+      };
+
+      // Make the API POST request
+      const response = await axios.post(
+        `https://optest.noretest.com/api/storepresensi`,
+        dataToSend
+      );
+
+      // Handle the response (if needed)
+      console.log(response.data);
+
+      // Show a success message
+      Alert.alert(
+        "Success",
+        "Data has been successfully submitted to the API."
+      );
+
+      // Optionally, you can navigate to another screen after successful submission
+      navigation.navigate("Main");
+    } catch (error) {
+      // Handle errors that occurred during the request
+      console.error("Error:", error);
+      Alert.alert("Error", "Failed to submit data to the API.");
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <View
+      style={{
+        height: deviceHeight / 1,
+        ...styles.container,
+      }}
+    >
       <View
         style={{
           height: deviceHeight / 11,
@@ -106,7 +151,7 @@ const PresensiScreen = () => {
               width: deviceWidth / 1.5,
             }}
           >
-            {userInfo.role.divisi}
+            {userInfo.user.divisi}
           </Text>
         </View>
         <View style={styles.judulComponent}>
@@ -121,23 +166,9 @@ const PresensiScreen = () => {
             {new Date().getFullYear()}
           </Text>
         </View>
-        <Text
-          style={{
-            color: "black",
-            fontSize: 18,
-            marginTop: 10,
-          }}
-        >
-          Pilih Kehadiran:
-        </Text>
 
-        <View
-          style={{
-            marginVertical: 10,
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
+        <View style={{ ...styles.judulComponent, zIndex: 1 }}>
+          <Text style={{ fontSize: 18 }}>Status:</Text>
           <DropDownPicker
             open={open}
             value={value}
@@ -146,40 +177,56 @@ const PresensiScreen = () => {
             setValue={setValue}
             setItems={setItems}
             style={{
-              backgroundColor: "white",
-              width: 200,
+              // backgroundColor: "white",
+              width: deviceWidth / 1.5,
+              padding: 10,
             }}
-            containerStyle={{ width: 200 }}
+            containerStyle={{
+              width: deviceWidth / 1.5,
+              height: deviceHeight / 18,
+            }}
             textStyle={{
-              fontSize: 20,
+              fontSize: 16,
             }}
           />
-          <TouchableOpacity
-            style={{
-              borderRadius: 10,
-              backgroundColor: "#2C7873",
-              width: 100,
-            }}
-            onPress={onSubmitPressed}
-          >
-            <Text
+        </View>
+        <View style={styles.judulComponent}>
+          <Text style={{ fontSize: 18 }}>Bukti</Text>
+          <View>
+            <TouchableOpacity
+              onPress={pickPdf}
               style={{
-                textAlign: "center",
-                color: "white",
-                fontWeight: "700",
-                fontSize: 18,
-                padding: 12,
+                width: deviceWidth / 1.5,
+                ...styles.component,
+                borderColor: "black",
+                borderWidth: 1,
+                padding: 10,
               }}
             >
-              Submit
-            </Text>
-            <Text>hh</Text>
-          </TouchableOpacity>
+              <Text style={{ color: "black", fontSize: 16 }}>Pilih file</Text>
+            </TouchableOpacity>
+            {pdfUri && (
+              <Text numberOfLines={1} style={{ padding: 5 }}>
+                Selected PDF: {pdfUri}
+              </Text>
+            )}
+          </View>
         </View>
-        <View>
-          <Button title="Pick a PDF" onPress={() => pickPdf()} />
-          {pdfUri && <Text>Selected PDF: {pdfUri}</Text>}
-        </View>
+        <TouchableOpacity
+          onPress={handleFormSubmit}
+          style={{
+            backgroundColor: "#3EB772",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 10,
+            borderRadius: 10,
+            marginVertical: 15,
+          }}
+        >
+          <Text style={{ fontWeight: "bold", color: "white", fontSize: 18 }}>
+            Kirim
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -189,19 +236,15 @@ export default PresensiScreen;
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    height: "100%",
     marginTop: 40,
-    backgroundColor: "#F0F0F0",
+    backgroundColor: "white",
   },
   header: {
-    width: "100%",
-
     flexDirection: "row",
     alignItems: "center",
 
     paddingHorizontal: 20,
-    borderBottomWidth: 4,
+    borderBottomWidth: 2,
     borderColor: "#DDDDDD",
 
     backgroundColor: "#ffffff",
@@ -218,7 +261,7 @@ const styles = StyleSheet.create({
   },
   component: {
     backgroundColor: "white",
-    fontSize: 18,
+    fontSize: 16,
     padding: 10,
     borderRadius: 10,
     borderWidth: 2,
@@ -227,7 +270,7 @@ const styles = StyleSheet.create({
   judulComponent: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 5,
+    marginVertical: 8,
     alignItems: "center",
   },
 });

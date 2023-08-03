@@ -6,6 +6,8 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
 } from "react-native";
 import Alerts from "../Components/Alert";
 import Icon from "@expo/vector-icons/Feather";
@@ -16,12 +18,16 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { NavigationParamList } from "../types/navigation";
 import { AuthContext } from "../Context/AuthContext";
 import Body from "../Components/Body";
+import History from "../Components/History";
+import { useGetPresensi } from "../src/GetPresensi";
 
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 const Home = () => {
   const deviceHeight = Dimensions.get("window").height;
   const deviceWidth = Dimensions.get("window").width;
   const { logout, userInfo } = useContext(AuthContext);
+  const { data, isLoading } = useGetPresensi();
+
   const navigation = useNavigation<NavigationProps>();
 
   const onQRPressed = () => {
@@ -41,6 +47,26 @@ const Home = () => {
     logout();
   };
 
+  const getContent = () => {
+    return <ActivityIndicator size="small" />;
+  };
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          height: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {getContent()}
+      </View>
+      // <Text style={{ justifyContent: "center", alignItems: "center" }}>
+      //   Loading..
+      // </Text>
+    );
+  }
+
   return (
     <ScrollView style={styles.container}>
       {/* ini header */}
@@ -55,7 +81,7 @@ const Home = () => {
           alignItems: "center",
 
           paddingHorizontal: 20,
-          borderBottomWidth: 4,
+          borderBottomWidth: 2,
           borderColor: "#DDDDDD",
 
           // borderWidth: 2,
@@ -65,7 +91,7 @@ const Home = () => {
           {/* <Icon name="user" size={45} color="white" /> */}
           <View style={{}}>
             <Text style={styles.name}>{userInfo.user.nama}</Text>
-            <Text style={styles.position}>{userInfo.role.divisi}</Text>
+            <Text style={styles.position}>{userInfo.user.divisi}</Text>
           </View>
         </View>
 
@@ -181,29 +207,29 @@ const Home = () => {
         >
           <Body
             textJudul="Hadir"
-            textJumlahHari="3 Hari"
+            textJumlahHari={data?.data.Hadir}
             icon={
               <Icons name="ios-checkmark-circle" size={50} color="#3EB772" />
             }
           />
           <Body
-            textJudul="Cuti"
-            textJumlahHari="2 Hari"
+            textJudul="Sisa Cuti"
+            textJumlahHari={data?.data.sisa_cuti}
             icon={<Icons name="ios-close-circle" size={50} color="red" />}
           />
           <Body
             textJudul="Sakit"
-            textJumlahHari={userInfo.user.sakit}
-            icon={<Sick name="emoticon-sick" size={50} color={"#F1C93B"} />}
+            textJumlahHari={data?.data.sakit}
+            icon={<Icons name="ios-sad" size={50} color={"#F1C93B"} />}
           />
           <Body
             textJudul="Izin"
-            textJumlahHari={userInfo.user.izin}
+            textJumlahHari={data?.data.izin}
             icon={<Icons name="ios-mail" size={50} color="red" />}
           />
           <Body
             textJudul="WFH"
-            textJumlahHari="2 Hari"
+            textJumlahHari={data?.data.WFH}
             icon={<Icons name="ios-home" size={45} color={"#3EB772"} />}
           />
         </View>
@@ -254,25 +280,19 @@ const Home = () => {
           paddingBottom: 20,
         }}
       >
-        <View style={{ ...styles.component, width: deviceWidth / 1.11 }}>
-          <Icons name="ios-log-in" size={40} color={"green"} />
-          <View style={{ marginHorizontal: 20 }}>
-            <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
-              Hadir
-            </Text>
-            <Text style={{ color: "grey" }}>13 Juli 2023, 10.00 WIB</Text>
-          </View>
-        </View>
-
-        <View style={{ ...styles.component, width: deviceWidth / 1.11 }}>
-          <Icons name="ios-close-circle" size={40} color={"red"} />
-          <View style={{ marginHorizontal: 20 }}>
-            <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
-              Cuti
-            </Text>
-            <Text style={{ color: "grey" }}>12 Juli 2023, 10.00 WIB</Text>
-          </View>
-        </View>
+        <FlatList
+          data={data?.data.presensi.slice(-2).reverse()}
+          renderItem={({ item }) => (
+            <View>
+              <History
+                textJudul={item.status_kehadiran}
+                textTimeStamp={item.tanggal}
+                icon={<Icons />}
+              />
+            </View>
+          )}
+          keyExtractor={(item, index) => item.id.toLocaleString()}
+        />
       </View>
     </ScrollView>
   );

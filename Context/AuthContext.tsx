@@ -16,8 +16,9 @@ type Data = {
     email: string;
     izin: number;
     sakit: number;
-  };
-  role: {
+    hadir: number;
+    sisa_cuti: number;
+    WFH: number;
     divisi: string;
   };
 };
@@ -66,8 +67,9 @@ export const AuthContext = createContext<AuthContextType>({
       email: "",
       izin: 0,
       sakit: 0,
-    },
-    role: {
+      hadir: 0,
+      sisa_cuti: 0,
+      WFH: 0,
       divisi: "",
     },
   },
@@ -89,15 +91,16 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       email: "",
       izin: 0,
       sakit: 0,
-    },
-    role: {
+      hadir: 0,
+      sisa_cuti: 0,
+      WFH: 0,
       divisi: "",
     },
   });
   const [Auth, setAuth] = useState(false);
   const [isPreparingApp, setPreparingApp] = useState(true);
   useEffect(() => {
-    console.log("userInfo nih bos", userInfo);
+    console.log("userInfo1", userInfo);
   }, [userInfo]);
   // const BASE_URL = 'YOUR_BASE_URL'; // Repslace 'YOUR_BASE_URL' with your actual base URL
   async function loadResourcesAndDataAsync() {
@@ -164,8 +167,9 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             email: "",
             izin: 0,
             sakit: 0,
-          },
-          role: {
+            hadir: 0,
+            sisa_cuti: 0,
+            WFH: 0,
             divisi: "",
           },
         });

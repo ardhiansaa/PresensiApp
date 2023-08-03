@@ -1,18 +1,16 @@
-import React, { FC, useState, useRef } from "react";
+import React, { useRef } from "react";
 import {
   View,
   StyleSheet,
   Text,
   Dimensions,
-  Pressable,
-  Button,
-  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
 } from "react-native";
 import Icons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { NavigationParamList } from "../types/navigation";
-import DropDownPicker from "react-native-dropdown-picker";
 import "react-native-gesture-handler";
 
 import {
@@ -21,14 +19,36 @@ import {
 } from "@gorhom/bottom-sheet";
 import BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet";
 import ButtonBottomSheet from "../Components/ButtonBottomSheet";
+import { useGetPresensi } from "../src/GetPresensi";
+import History from "../Components/History";
+import { ScrollView } from "react-native-gesture-handler";
 // interface IRiwayatScreenProps {
 
 // }
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 const RiwayatScreen = () => {
   const deviceHeight = Dimensions.get("window").height;
-  const deviceWidth = Dimensions.get("window").width;
+  const { data, isLoading } = useGetPresensi();
+  const getStatusIds = () => {
+    return data?.data.presensi.map((item) => item.status);
+  };
 
+  const statusIds = getStatusIds();
+
+  const renderStatus = (statusIds: number) => {
+    switch (statusIds) {
+      case 1:
+        return "ios-log-in";
+      case 2:
+        return "ios-mail";
+      case 3:
+        return "ios-sad";
+      case 4:
+        return "ios-home";
+      default:
+        return;
+    }
+  };
   const navigation = useNavigation<NavigationProps>();
 
   const onBackPressed = () => {
@@ -41,8 +61,28 @@ const RiwayatScreen = () => {
     bottomSheetModalRef.current?.present();
   }
 
+  const getContent = () => {
+    return <ActivityIndicator size="small" />;
+  };
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          height: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {getContent()}
+      </View>
+      // <Text style={{ justifyContent: "center", alignItems: "center" }}>
+      //   Loading..
+      // </Text>
+    );
+  }
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* ini header */}
       <View
         style={{
@@ -58,7 +98,7 @@ const RiwayatScreen = () => {
 
       {/* ini filter */}
 
-      <BottomSheetModalProvider>
+      {/* <BottomSheetModalProvider>
         <View>
           <TouchableOpacity
             onPress={handlerPresentModal}
@@ -124,7 +164,7 @@ const RiwayatScreen = () => {
             </View>
           </BottomSheetModal>
         </View>
-      </BottomSheetModalProvider>
+      </BottomSheetModalProvider> */}
 
       {/* ini konten */}
       <View
@@ -135,27 +175,35 @@ const RiwayatScreen = () => {
           paddingBottom: 20,
         }}
       >
-        <View style={{ ...styles.component, width: deviceWidth / 1.11 }}>
-          <Icons name="ios-log-in" size={40} color={"green"} />
-          <View style={{ marginHorizontal: 20 }}>
-            <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
-              Hadir
-            </Text>
-            <Text style={{ color: "grey" }}>13 Juli 2023, 10.00 WIB</Text>
-          </View>
-        </View>
+        <FlatList
+          data={data?.data.presensi.slice().reverse()}
+          renderItem={({ item }) => (
+            <View>
+              <History
+                textJudul={item.status_kehadiran}
+                textTimeStamp={item.tanggal}
+                icon={
+                  <Icons
+                    name={renderStatus(statusIds)}
+                    size={40}
+                    color={"green"}
+                  />
+                }
+              />
+            </View>
+          )}
+          keyExtractor={(item, index) => item.id.toLocaleString()}
+        />
 
-        <View style={{ ...styles.component, width: deviceWidth / 1.11 }}>
-          <Icons name="ios-close-circle" size={40} color={"red"} />
-          <View style={{ marginHorizontal: 20 }}>
-            <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
-              Cuti
-            </Text>
-            <Text style={{ color: "grey" }}>12 Juli 2023, 10.00 WIB</Text>
+        {/* {data?.data.karyawans?.[0].presensi?.map((item) => (
+          <View key={item.id}>
+            <Text>{item.status}</Text>
+            <Text>{item.tanggal}</Text>
+            <Text>{item.updated_at}</Text>
           </View>
-        </View>
+        ))} */}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -176,7 +224,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
 
     paddingHorizontal: 20,
-    borderBottomWidth: 4,
+    borderBottomWidth: 2,
     borderColor: "#DDDDDD",
   },
   txtHead: {
