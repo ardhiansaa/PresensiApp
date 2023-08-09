@@ -28,8 +28,8 @@ export default History;
 const styles = StyleSheet.create({
   component: {
     flexDirection: "row",
-    borderWidth: 1.5,
-    backgroundColor: "white",
+    borderWidth: 2,
+    backgroundColor: "#fbfbfa",
     alignItems: "center",
     marginTop: 10,
     borderRadius: 10,

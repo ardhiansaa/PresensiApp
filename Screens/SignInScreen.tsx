@@ -1,5 +1,14 @@
 import React, { FC, useState, useContext } from "react";
-import { View, StyleSheet, Text, Image, Button } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  Image,
+  Button,
+  TextInput,
+  Alert,
+  ScrollView,
+} from "react-native";
 import CustomInputs from "../Components/CustomInput";
 import SignInUpButton from "../Components/SignInUpButton";
 import { useNavigation } from "@react-navigation/native";
@@ -7,18 +16,36 @@ import Home from "./Home";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { NavigationParamList } from "../types/navigation";
 import { AuthContext } from "../Context/AuthContext";
+import { useForm, Controller } from "react-hook-form";
 // interface ISignInProps {}
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 
 const SignInScreen = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const [usernameEmpty, setUsernameEmpty] = useState(false); // New state for username empty status
+  const [passwordEmpty, setPasswordEmpty] = useState(false);
+  const { userInfo } = useContext(AuthContext);
   const navigation = useNavigation<NavigationProps>();
 
   const onSignInPressed = () => {
-    login(username, password);
+    if (username.trim() === "") {
+      setUsernameEmpty(true);
+    } else {
+      setUsernameEmpty(false);
+    }
+
+    if (password.trim() === "") {
+      setPasswordEmpty(true);
+    } else {
+      setPasswordEmpty(false);
+    }
+
+    if (username.trim() !== "" && password.trim() !== "") {
+      login(username, password);
+    }
   };
+
   const onForgotPressed = () => {
     navigation.navigate("ResetPassword");
   };
@@ -26,42 +53,44 @@ const SignInScreen = () => {
     navigation.navigate("SignUp");
   };
 
-  const val = useContext(AuthContext);
   const { login } = useContext(AuthContext);
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require("../assets/logoNore.png")}
-        style={{ width: 200, height: 120 }}
-      />
-      {/* <Text>SignIn Screens</Text> */}
-      <CustomInputs
-        placeholder="Username"
-        value={username}
-        setValue={setUsername}
-        secureTextEntry={false}
-      />
-      <CustomInputs
-        placeholder="Password"
-        value={password}
-        setValue={setPassword}
-        secureTextEntry={true}
-      />
-      {/* <Text>{val}</Text> */}
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
+        <Image
+          source={require("../assets/logoNore.png")}
+          style={{ width: 210, height: 140, alignSelf: "center" }}
+        />
+        {/* <Text>SignIn Screens</Text> */}
+        <CustomInputs
+          placeholder="Username"
+          value={username}
+          setValue={setUsername}
+          secureTextEntry={false}
+          isEmpty={usernameEmpty}
+        />
+        <CustomInputs
+          placeholder="Password"
+          value={password}
+          setValue={setPassword}
+          secureTextEntry={true}
+          isEmpty={passwordEmpty}
+        />
 
-      <SignInUpButton onPress={onSignInPressed} textButton="Masuk" />
-      <SignInUpButton
-        onPress={onSignUPPressed}
-        textButton="Daftar"
-        type="SECONDARY"
-      />
+        <SignInUpButton onPress={onSignInPressed} textButton="Masuk" />
+        <SignInUpButton
+          onPress={onSignUPPressed}
+          textButton="Daftar"
+          type="SECONDARY"
+        />
 
-      <SignInUpButton
-        onPress={onForgotPressed}
-        textButton="Forgot Password?"
-        type="TERTIARY"
-      />
+        <SignInUpButton
+          onPress={onForgotPressed}
+          textButton="Forgot Password?"
+          type="TERTIARY"
+        />
+      </ScrollView>
     </View>
   );
 };
@@ -70,7 +99,7 @@ export default SignInScreen;
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
+    // alignItems: "center",
     padding: 20,
     width: "100%",
     marginTop: "7%",

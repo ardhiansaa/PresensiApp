@@ -13,7 +13,7 @@ const Body = (props: IBodyProps) => {
   return (
     <View
       style={{
-        width: deviceWidth / 2.5,
+        width: deviceWidth / 2.3,
         height: deviceHeight / 8,
         ...styles.presensiBox,
       }}
@@ -21,7 +21,7 @@ const Body = (props: IBodyProps) => {
       {props.icon}
       <View
         style={{
-          paddingHorizontal: 10,
+          paddingHorizontal: 8,
           paddingVertical: 0,
         }}
       >

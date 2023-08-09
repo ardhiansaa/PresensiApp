@@ -1,4 +1,4 @@
-import React, { FC, useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -6,13 +6,12 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
-  FlatList,
   ActivityIndicator,
 } from "react-native";
 import Alerts from "../Components/Alert";
-import Icon from "@expo/vector-icons/Feather";
+import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import Icons from "@expo/vector-icons/Ionicons";
-import Sick from "@expo/vector-icons/MaterialCommunityIcons";
+
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { NavigationParamList } from "../types/navigation";
@@ -20,27 +19,37 @@ import { AuthContext } from "../Context/AuthContext";
 import Body from "../Components/Body";
 import History from "../Components/History";
 import { useGetPresensi } from "../src/GetPresensi";
+import { useUserDetails } from "../src/UserDetails";
 
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 const Home = () => {
   const deviceHeight = Dimensions.get("window").height;
   const deviceWidth = Dimensions.get("window").width;
-  const { logout, userInfo } = useContext(AuthContext);
-  const { data, isLoading } = useGetPresensi();
+  const { logout } = useContext(AuthContext);
+  const { data: presensiData, isLoading } = useGetPresensi();
+  const { data: userDetailsData } = useUserDetails();
 
   const navigation = useNavigation<NavigationProps>();
 
-  const onQRPressed = () => {
-    navigation.navigate("QR");
+  const getHistoryIcon = (status: number) => {
+    switch (status) {
+      case 1:
+        return <Icon name="account-check" size={40} color="#3EB772" />;
+      case 2:
+        return <Icon name="briefcase-clock" size={40} color="red" />;
+      case 3:
+        return <Icon name="hospital-box" size={40} color={"#F1C93B"} />;
+      case 4:
+        return <Icon name="home-automation" size={40} color={"#3EB772"} />;
+      default:
+        return (
+          <Icons name="ios-information-circle" size={40} color={"black"} />
+        );
+    }
   };
-  const onRiwayatPressed = () => {
-    navigation.navigate("Riwayat");
-  };
+
   const onPresensiPressed = () => {
     navigation.navigate("Presensi");
-  };
-  const onForgotPressed = () => {
-    navigation.navigate("Home");
   };
 
   const onLogOut = () => {
@@ -48,7 +57,12 @@ const Home = () => {
   };
 
   const getContent = () => {
-    return <ActivityIndicator size="small" />;
+    return (
+      <ActivityIndicator
+        size="large"
+        style={{ justifyContent: "center", alignItems: "center" }}
+      />
+    );
   };
   if (isLoading) {
     return (
@@ -61,48 +75,33 @@ const Home = () => {
       >
         {getContent()}
       </View>
-      // <Text style={{ justifyContent: "center", alignItems: "center" }}>
-      //   Loading..
-      // </Text>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
       {/* ini header */}
       <View
         style={{
           height: deviceHeight / 11,
-          // width: "100%",
-          backgroundColor: "white",
-
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-
-          paddingHorizontal: 20,
-          borderBottomWidth: 2,
-          borderColor: "#DDDDDD",
-
-          // borderWidth: 2,
+          ...styles.header,
         }}
       >
         <View style={{ flexDirection: "row" }}>
-          {/* <Icon name="user" size={45} color="white" /> */}
-          <View style={{}}>
-            <Text style={styles.name}>{userInfo.user.nama}</Text>
-            <Text style={styles.position}>{userInfo.user.divisi}</Text>
+          <View>
+            <Text style={styles.name}>{userDetailsData?.user.nama}</Text>
+            <Text style={styles.position}>{userDetailsData?.user.divisi}</Text>
           </View>
         </View>
 
-        <Icon name="log-out" size={30} color={"grey"} onPress={onLogOut} />
+        <Icon name="logout" size={30} color={"grey"} onPress={onLogOut} />
       </View>
 
       <View style={{ backgroundColor: "#3EB772" }}>
         {/* ini alert */}
         <View
           style={{
-            height: deviceHeight / 7,
+            height: deviceHeight / 9,
             justifyContent: "space-around",
             alignItems: "center",
             // borderWidth: 1,
@@ -112,20 +111,7 @@ const Home = () => {
         </View>
 
         {/* ini main fitur */}
-        <View
-          style={{
-            flexDirection: "row",
-            marginHorizontal: 20,
-            marginTop: 0,
-            marginVertical: 10,
-            // alignContent: "center",
-            justifyContent: "space-between",
-            backgroundColor: "white",
-            paddingVertical: 20,
-            paddingHorizontal: 30,
-            borderRadius: 20,
-          }}
-        >
+        <View style={styles.mainFitur}>
           <View
             style={{
               justifyContent: "space-between",
@@ -151,16 +137,7 @@ const Home = () => {
           </View>
 
           <TouchableOpacity onPress={onPresensiPressed}>
-            <View
-              style={{
-                backgroundColor: "#3EB772",
-                borderRadius: 15,
-                padding: 10,
-                width: deviceWidth / 3,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <View style={{ ...styles.presensiButton, width: deviceWidth / 3 }}>
               <Icons name="ios-log-in-outline" size={40} color={"white"} />
               <Text style={styles.txtMainMenu}>Presensi</Text>
             </View>
@@ -177,16 +154,7 @@ const Home = () => {
           marginTop: 10,
         }}
       >
-        <Text
-          style={{
-            marginHorizontal: 20,
-            fontSize: 20,
-            fontWeight: "bold",
-            color: "black",
-          }}
-        >
-          Presensi Anda
-        </Text>
+        <Text style={styles.txtPresensi}>Presensi Anda</Text>
       </View>
 
       {/* ini body */}
@@ -197,40 +165,34 @@ const Home = () => {
       >
         <View
           style={{
-            flexDirection: "row",
-            marginHorizontal: 20,
-            // justifyContent: "space-between",
-            marginTop: 0,
-            backgroundColor: "white",
-            height: deviceHeight / 6,
+            ...styles.body,
+            height: deviceHeight / 5.8,
           }}
         >
           <Body
             textJudul="Hadir"
-            textJumlahHari={data?.data.Hadir}
-            icon={
-              <Icons name="ios-checkmark-circle" size={50} color="#3EB772" />
-            }
+            textJumlahHari={userDetailsData?.user.hadir}
+            icon={<Icon name="account-check" size={50} color="#3EB772" />}
           />
           <Body
             textJudul="Sisa Cuti"
-            textJumlahHari={data?.data.sisa_cuti}
-            icon={<Icons name="ios-close-circle" size={50} color="red" />}
+            textJumlahHari={userDetailsData?.user.sisa_cuti}
+            icon={<Icon name="briefcase-clock" size={50} color="red" />}
           />
           <Body
             textJudul="Sakit"
-            textJumlahHari={data?.data.sakit}
-            icon={<Icons name="ios-sad" size={50} color={"#F1C93B"} />}
+            textJumlahHari={userDetailsData?.user.sakit}
+            icon={<Icon name="hospital-box" size={50} color={"#F1C93B"} />}
           />
           <Body
             textJudul="Izin"
-            textJumlahHari={data?.data.izin}
-            icon={<Icons name="ios-mail" size={50} color="red" />}
+            textJumlahHari={userDetailsData?.user.izin}
+            icon={<Icon name="email" size={50} color="red" />}
           />
           <Body
             textJudul="WFH"
-            textJumlahHari={data?.data.WFH}
-            icon={<Icons name="ios-home" size={45} color={"#3EB772"} />}
+            textJumlahHari={userDetailsData?.user.WFH}
+            icon={<Icon name="home-automation" size={50} color={"#3EB772"} />}
           />
         </View>
       </ScrollView>
@@ -238,24 +200,12 @@ const Home = () => {
       {/* ini txt Riwayat */}
       <View
         style={{
-          flexDirection: "row",
           marginTop: 10,
-          alignItems: "center",
-          justifyContent: "space-between",
           backgroundColor: "white",
-          paddingTop: 10,
+          paddingVertical: 10,
         }}
       >
-        <Text
-          style={{
-            fontSize: 20,
-            fontWeight: "bold",
-            color: "black",
-            marginHorizontal: 20,
-          }}
-        >
-          Riwayat Terbaru
-        </Text>
+        <Text style={styles.txtRiwayat}>Riwayat Terbaru</Text>
 
         {/* <TouchableOpacity>
           <Text
@@ -278,21 +228,21 @@ const Home = () => {
           // marginHorizontal: 25,
           backgroundColor: "white",
           paddingBottom: 20,
+          height: deviceHeight / 3.3,
         }}
       >
-        <FlatList
-          data={data?.data.presensi.slice(-2).reverse()}
-          renderItem={({ item }) => (
-            <View>
+        {presensiData?.data?.presensi
+          .slice(-2)
+          .reverse()
+          .map((item) => (
+            <View key={item.id}>
               <History
                 textJudul={item.status_kehadiran}
                 textTimeStamp={item.tanggal}
-                icon={<Icons />}
+                icon={getHistoryIcon(item.status)}
               />
             </View>
-          )}
-          keyExtractor={(item, index) => item.id.toLocaleString()}
-        />
+          ))}
       </View>
     </ScrollView>
   );
@@ -306,6 +256,32 @@ const styles = StyleSheet.create({
     marginTop: "7%",
     backgroundColor: "#F0F0F0",
   },
+  header: {
+    // width: "100%",
+    backgroundColor: "white",
+
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+
+    paddingHorizontal: 20,
+    borderBottomWidth: 2,
+    borderColor: "#DDDDDD",
+
+    // borderWidth: 2,
+  },
+  mainFitur: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+
+    marginVertical: 30,
+    // alignContent: "center",
+    justifyContent: "space-between",
+    backgroundColor: "white",
+    paddingVertical: 20,
+    paddingHorizontal: 30,
+    borderRadius: 20,
+  },
   name: {
     fontSize: 20,
     fontWeight: "bold",
@@ -317,10 +293,12 @@ const styles = StyleSheet.create({
   },
 
   body: {
-    borderRadius: 0,
     flexDirection: "row",
-    width: "100%",
-    backgroundColor: "#070A0D",
+    marginHorizontal: 20,
+    paddingVertical: 15,
+    // justifyContent: "space-between",
+    // marginTop: 20,
+    backgroundColor: "white",
   },
   txtMainMenu: {
     fontSize: 14,
@@ -338,6 +316,13 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: "#DDDDDD",
   },
+  presensiButton: {
+    backgroundColor: "#3EB772",
+    borderRadius: 15,
+    padding: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   component: {
     flexDirection: "row",
     borderWidth: 1.5,
@@ -349,5 +334,17 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 20,
     padding: 25,
     borderColor: "#DDDDDD",
+  },
+  txtPresensi: {
+    marginHorizontal: 20,
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "black",
+  },
+  txtRiwayat: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "black",
+    marginHorizontal: 20,
   },
 });

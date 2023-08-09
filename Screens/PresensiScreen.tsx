@@ -1,62 +1,76 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FC, useContext, useState } from "react";
+import React, { FC, useContext, useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
   Text,
   Dimensions,
-  Pressable,
   TouchableOpacity,
-  Button,
   Alert,
+  TextInput,
+  Button,
+  LogBox,
 } from "react-native";
 import { NavigationParamList } from "../types/navigation";
 import Icons from "@expo/vector-icons/Ionicons";
 import DropDownPicker from "react-native-dropdown-picker";
-import { AuthContext } from "../Context/AuthContext";
 import * as DocumentPicker from "expo-document-picker";
 import axios from "../services/axios";
+import { useUserDetails } from "../src/UserDetails";
+import { useStatusPresensi } from "../src/StatusPresensi";
+import { BASE_URL } from "../config";
+import getImageMeta from "../utils/getImageMeta";
+import { ScrollView } from "react-native-gesture-handler";
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+} from "@gorhom/bottom-sheet";
 
+type PresensiData = {
+  user_id: number;
+  tanggal: string;
+  status: number;
+  bukti: string;
+  keterangan: string;
+};
 // interface IPresensiScreenProps {}
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 
 const PresensiScreen = () => {
   const deviceHeight = Dimensions.get("window").height;
   const deviceWidth = Dimensions.get("window").width;
-  const [pdfUri, setPdfUri] = useState("");
 
-  const { userInfo } = useContext(AuthContext);
+  const [keterangan, setKeterangan] = useState<string>("");
+
+  const [pdfUri, setPdfUri] = useState("");
+  const { data: UserDetailsData } = useUserDetails();
+  const { data: StatusPresensiData } = useStatusPresensi();
+  const [isLoadingStatusPresensi, setIsLoadingStatusPresensi] = useState(true);
   const navigation = useNavigation<NavigationProps>();
   const onBackPressed = () => {
     navigation.navigate("Main");
   };
   const onSubmitPressed = () => {
-    navigation.navigate("Main");
+    sendDataToApi();
   };
 
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    { label: "Hadir", value: "hadir" },
-    { label: "Sakit", value: "sakit" },
-    { label: "Izin", value: "izin" },
-    { label: "Cuti", value: "cuti" },
-    { label: "WFH", value: "wfh" },
-  ]);
+  // const bottomSheetModalRef = useRef(null);
 
-  // const pickDocument = async () => {
-  //   let result = await DocumentPicker.getDocumentAsync({
-  //     type: "application/pdf",
-  //     multiple: false,
-  //   });
-  //   console.log(result.type);
-  //   console.log(result);
-  // };
+  // const snapPoints = ["40%"];
+
+  // function handlePresentModal() {
+  //   bottomSheetModalRef.current?.present();
+  // }
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState<number | null>(null);
+  const [items, setItems] = useState<{ label: string; value: number }[]>([]);
+
   const pickPdf = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ["application/pdf", "image/jpeg", "image/jpg"],
+        type: ["application/pdf", "image/jpeg", "image/jpg", "image/heic"],
       });
 
       if (result.type === "success") {
@@ -70,164 +84,216 @@ const PresensiScreen = () => {
     }
   };
 
-  const handleFormSubmit = async () => {
-    try {
-      // Prepare the data to send
-      const dataToSend = {
-        nama: userInfo.user.nama,
-        divisi: userInfo.user.divisi,
-        tanggal: `${new Date().getDate()}/${
-          new Date().getMonth() + 1
-        }/${new Date().getFullYear()}`,
-        status: value,
-        bukti: pdfUri, // Assuming pdfUri is the path or name of the selected PDF file
-      };
+  const sendDataToApi = () => {
+    const apiUrl = `${BASE_URL}/storepresensi`;
+    const file = getImageMeta(pdfUri);
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getFullYear()}/${
+      currentDate.getMonth() + 1
+    }/${currentDate.getDate()}`;
 
-      // Make the API POST request
-      const response = await axios.post(
-        `https://optest.noretest.com/api/storepresensi`,
-        dataToSend
-      );
-
-      // Handle the response (if needed)
-      console.log(response.data);
-
-      // Show a success message
-      Alert.alert(
-        "Success",
-        "Data has been successfully submitted to the API."
-      );
-
-      // Optionally, you can navigate to another screen after successful submission
-      navigation.navigate("Main");
-    } catch (error) {
-      // Handle errors that occurred during the request
-      console.error("Error:", error);
-      Alert.alert("Error", "Failed to submit data to the API.");
-    }
+    var bodyFormData = new FormData();
+    bodyFormData.append("user_id", String(UserDetailsData?.user.id));
+    bodyFormData.append("bukti", file as any);
+    bodyFormData.append("tanggal", formattedDate);
+    bodyFormData.append("status", value as any);
+    bodyFormData.append("keterangan", keterangan);
+    axios
+      .post<PresensiData>(apiUrl, bodyFormData)
+      .then((response) => {
+        if (response.data.status === 1) {
+          console.log("API Response:", response.data);
+          Alert.alert("Anda Berhasil Presensi", response.data.tanggal);
+        } else if (response.data.status === 2) {
+          console.log("API Response:", response.data);
+          Alert.alert("Anda Berhasil Izin", response.data.tanggal);
+        } else if (response.data.status === 3) {
+          console.log("API Response:", response.data);
+          Alert.alert("Anda Berhasil Cuti", response.data.tanggal);
+        } else if (response.data.status === 4) {
+          console.log("API Response:", response.data);
+          Alert.alert("Anda Berhasil WFH", response.data.tanggal);
+        } else {
+          console.log("API Response:", response.data);
+          Alert.alert(
+            "Status Tidak Dikenali",
+            `Status: ${response.data.status}, Tanggal: ${response.data.tanggal}`
+          );
+        }
+      })
+      .catch((error) => {
+        if (error.response.data.message) {
+          Alert.alert("Error", error.response.data.message);
+        } else {
+          Alert.alert("Error", "Error sending data to API");
+        }
+      });
   };
+  // useEffect(() => {
+  //   const status = StatusPresensiData?.user?.map((value) => ({
+  //     label: value.nama,
+  //     value: value.id,
+  //   }));
+  //   setItems(status ?? []);
+  //   console.log("StatusPresensiData:", StatusPresensiData);
+  // }, [StatusPresensiData?.user]);
+  useEffect(() => {
+    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+  }, []);
+  useEffect(() => {
+    if (StatusPresensiData) {
+      const status = StatusPresensiData.user?.map((value) => ({
+        label: value.nama,
+        value: value.id,
+      }));
+      setItems(status ?? []);
+      setIsLoadingStatusPresensi(false);
+    }
+  }, [StatusPresensiData]);
+
+  if (isLoadingStatusPresensi) {
+    <View>
+      <Text>Loading...</Text>
+    </View>;
+  }
+  console.log(value);
 
   return (
-    <View
-      style={{
-        height: deviceHeight / 1,
-        ...styles.container,
-      }}
-    >
-      <View
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        nestedScrollEnabled
         style={{
-          height: deviceHeight / 11,
-          ...styles.header,
+          height: deviceHeight / 1,
+          ...styles.container,
         }}
       >
-        <TouchableOpacity onPress={onBackPressed}>
-          <Icons name="ios-chevron-back-outline" size={30} color="black" />
-        </TouchableOpacity>
-
-        <Text style={styles.txtHead}>Presensi</Text>
-      </View>
-
-      {/* ini body */}
-      <View style={styles.body}>
-        <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 20 }}>
-          Form Presensi Harian
-        </Text>
-        <View style={styles.judulComponent}>
-          <Text style={{ fontSize: 18 }}>Nama:</Text>
-          <Text
-            style={{
-              ...styles.component,
-              width: deviceWidth / 1.5,
-            }}
-          >
-            {userInfo.user.nama}
-          </Text>
-        </View>
-        <View style={styles.judulComponent}>
-          <Text style={{ fontSize: 18 }}>Divisi:</Text>
-          <Text
-            style={{
-              ...styles.component,
-              width: deviceWidth / 1.5,
-            }}
-          >
-            {userInfo.user.divisi}
-          </Text>
-        </View>
-        <View style={styles.judulComponent}>
-          <Text style={{ fontSize: 18 }}>Tanggal:</Text>
-          <Text
-            style={{
-              ...styles.component,
-              width: deviceWidth / 1.5,
-            }}
-          >
-            {new Date().getDate()}/{new Date().getMonth() + 1}/
-            {new Date().getFullYear()}
-          </Text>
-        </View>
-
-        <View style={{ ...styles.judulComponent, zIndex: 1 }}>
-          <Text style={{ fontSize: 18 }}>Status:</Text>
-          <DropDownPicker
-            open={open}
-            value={value}
-            items={items}
-            setOpen={setOpen}
-            setValue={setValue}
-            setItems={setItems}
-            style={{
-              // backgroundColor: "white",
-              width: deviceWidth / 1.5,
-              padding: 10,
-            }}
-            containerStyle={{
-              width: deviceWidth / 1.5,
-              height: deviceHeight / 18,
-            }}
-            textStyle={{
-              fontSize: 16,
-            }}
-          />
-        </View>
-        <View style={styles.judulComponent}>
-          <Text style={{ fontSize: 18 }}>Bukti</Text>
-          <View>
-            <TouchableOpacity
-              onPress={pickPdf}
-              style={{
-                width: deviceWidth / 1.5,
-                ...styles.component,
-                borderColor: "black",
-                borderWidth: 1,
-                padding: 10,
-              }}
-            >
-              <Text style={{ color: "black", fontSize: 16 }}>Pilih file</Text>
-            </TouchableOpacity>
-            {pdfUri && (
-              <Text numberOfLines={1} style={{ padding: 5 }}>
-                Selected PDF: {pdfUri}
-              </Text>
-            )}
-          </View>
-        </View>
-        <TouchableOpacity
-          onPress={handleFormSubmit}
+        <View
           style={{
-            backgroundColor: "#3EB772",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 10,
-            borderRadius: 10,
-            marginVertical: 15,
+            height: deviceHeight / 11,
+            ...styles.header,
           }}
         >
-          <Text style={{ fontWeight: "bold", color: "white", fontSize: 18 }}>
-            Kirim
+          <TouchableOpacity onPress={onBackPressed}>
+            <Icons name="ios-chevron-back-outline" size={30} color="black" />
+          </TouchableOpacity>
+
+          <Text style={styles.txtHead}>Presensi</Text>
+        </View>
+
+        {/* ini body */}
+        <View style={styles.body}>
+          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 20 }}>
+            Form Presensi Harian
           </Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.judulComponent}>
+            <Text style={{ fontSize: 18 }}>Nama:</Text>
+            <Text
+              style={{
+                ...styles.component,
+                width: deviceWidth / 1.7,
+              }}
+            >
+              {UserDetailsData?.user.nama}
+            </Text>
+          </View>
+          <View style={styles.judulComponent}>
+            <Text style={{ fontSize: 18 }}>Divisi:</Text>
+            <Text
+              style={{
+                ...styles.component,
+                width: deviceWidth / 1.7,
+              }}
+            >
+              {UserDetailsData?.user.divisi}
+            </Text>
+          </View>
+          <View style={styles.judulComponent}>
+            <Text style={{ fontSize: 18 }}>Tanggal:</Text>
+            <Text
+              style={{
+                ...styles.component,
+                width: deviceWidth / 1.7,
+              }}
+            >
+              {new Date().getDate()}/{new Date().getMonth() + 1}/
+              {new Date().getFullYear()}
+            </Text>
+          </View>
+          <View style={{ ...styles.judulComponent, zIndex: 1 }}>
+            <Text style={{ fontSize: 18 }}>Status:</Text>
+            <DropDownPicker
+              placeholder="Pilih Kehadiran"
+              open={open}
+              value={value}
+              items={items}
+              setOpen={setOpen}
+              setValue={setValue}
+              setItems={setItems}
+              style={{
+                // backgroundColor: "white",
+                width: deviceWidth / 1.7,
+                padding: 10,
+              }}
+              containerStyle={{
+                width: deviceWidth / 1.7,
+                height: deviceHeight / 18,
+              }}
+              textStyle={{
+                fontSize: 16,
+              }}
+            />
+          </View>
+
+          <View style={styles.judulComponent}>
+            <Text style={{ fontSize: 18 }}>Bukti</Text>
+            <View>
+              <TouchableOpacity
+                onPress={pickPdf}
+                style={{
+                  width: deviceWidth / 1.7,
+                  ...styles.component,
+                  borderColor: "black",
+                  borderWidth: 1,
+                  padding: 10,
+                }}
+              >
+                <Text style={{ color: "black", fontSize: 16 }}>Pilih file</Text>
+              </TouchableOpacity>
+              {pdfUri && (
+                <Text numberOfLines={1} style={{ padding: 5 }}>
+                  File: {pdfUri}
+                </Text>
+              )}
+            </View>
+          </View>
+          <View style={styles.judulComponent}>
+            <Text style={{ fontSize: 18 }}>Keterangan</Text>
+            <View>
+              <TextInput
+                placeholder="Isi Keterangan"
+                value={keterangan}
+                style={{ ...styles.TextField, width: deviceWidth / 1.7 }}
+                onChangeText={setKeterangan}
+              />
+            </View>
+          </View>
+          <TouchableOpacity
+            onPress={onSubmitPressed}
+            style={{
+              backgroundColor: "#3EB772",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 10,
+              borderRadius: 10,
+              marginVertical: 15,
+            }}
+          >
+            <Text style={{ fontWeight: "bold", color: "white", fontSize: 18 }}>
+              Kirim
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -236,7 +302,7 @@ export default PresensiScreen;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
+    marginTop: "7%",
     backgroundColor: "white",
   },
   header: {
@@ -272,5 +338,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginVertical: 8,
     alignItems: "center",
+  },
+  TextField: {
+    backgroundColor: "white",
+    fontSize: 16,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "black",
   },
 });

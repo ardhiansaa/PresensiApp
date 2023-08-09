@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "../services/axios";
 import { AxiosResponse } from "axios";
 import * as SplashScreen from "expo-splash-screen";
+import { Alert } from "react-native";
 // import axios from "axios";
 
 type Data = {
@@ -135,12 +136,30 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         password,
       })
       .then(async (res) => {
-        let userInfo = res.data.data;
-        console.log("userInfo", userInfo);
-        setUserInfo(userInfo);
-        await AsyncStorage.setItem(tokenKey, userInfo.token);
-        setIsLoading(false);
-        setAuth(true);
+        if (res.data.code === 200) {
+          let userInfo = res.data.data;
+          console.log("userInfo", userInfo);
+
+          // Save token to AsyncStorage
+          await AsyncStorage.setItem(tokenKey, userInfo.token);
+
+          // Update state with userInfo
+          setUserInfo(userInfo);
+
+          // Set authentication state
+          setAuth(true);
+
+          setIsLoading(false); // Make sure to set loading state to false
+        } else {
+          let errorInfo = res.data;
+          console.log("Error", errorInfo.message);
+
+          // Handle other error cases, show an alert or perform other actions
+          // For example, you can show an error message to the user using Alert.alert
+          Alert.alert("Warning!", errorInfo.message);
+
+          setIsLoading(false); // Make sure to set loading state to false
+        }
       })
       .catch((e) => {
         console.log(`login error ${e}`);

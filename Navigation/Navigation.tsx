@@ -30,8 +30,6 @@ const BottomTabNavigator = () => {
         tabBarStyle: {
           backgroundColor: "white",
           height: 60,
-          // borderTopWidth: 4,
-          // borderColor: "white",
           paddingVertical: 7,
           paddingBottom: 7,
         },

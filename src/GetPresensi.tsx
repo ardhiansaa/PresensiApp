@@ -5,11 +5,6 @@ import { BASE_URL } from "../config";
 const RiwayatUrl = `${BASE_URL}/getpresensi`;
 
 type Presensi = {
-  Hadir: number;
-  sakit: number;
-  izin: number;
-  WFH: number;
-  sisa_cuti: number;
   presensi: {
     id: number;
     tanggal: string;

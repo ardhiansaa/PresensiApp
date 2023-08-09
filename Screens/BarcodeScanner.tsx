@@ -1,11 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Button } from "react-native";
+import { Text, View, StyleSheet, Button, Alert } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import axios from "../services/axios";
+import { AxiosResponse } from "axios";
+import { BASE_URL } from "../config";
+
+type Response = {
+  code: number;
+  status: string;
+  message: string;
+  uuid: string;
+  presensi: {
+    tanggal: string;
+    status: number;
+    user_id: number;
+    updated_at: string;
+    created_at: string;
+    id: number;
+  };
+};
 
 export default function BarcodeScanner() {
-  const [hasPermission, setHasPermission] = useState<any>(null);
-  const [scanned, setScanned] = useState<any>(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [scanned, setScanned] = useState<boolean>(false);
+  const [presensiDone, setPresensiDone] = useState<boolean>(false);
 
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -16,9 +35,38 @@ export default function BarcodeScanner() {
     getBarCodeScannerPermissions();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }: any) => {
+  const sendDataToApi = (uuid: string) => {
+    const apiUrl = `${BASE_URL}/storepresensiqr`;
+
+    axios
+      .post<Response>(apiUrl, { uuid: uuid })
+      .then((response) => {
+        if (response.data.code === 200) {
+          console.log("API Response:", response.data);
+          Alert.alert("Success", response.data.message);
+        }
+      })
+      .catch((error) => {
+        if (error.response.data.message) {
+          Alert.alert("Error", error.response.data.message);
+        } else {
+          Alert.alert("Error", "Error sending data to API ]");
+        }
+      });
+  };
+
+  const handleBarCodeScanned = ({
+    type,
+    data,
+  }: {
+    type: string;
+    data: string;
+  }) => {
     setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+
+    // Call the function to send data to the API
+    sendDataToApi(data);
   };
 
   if (hasPermission === null) {
@@ -34,19 +82,6 @@ export default function BarcodeScanner() {
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
       />
-      {/* <Text
-        style={{
-          marginTop: "20%",
-          textAlign: "center",
-          height: "100%",
-          justifyContent: "center",
-          fontSize: 20,
-          fontWeight: "bold",
-          color: "white",
-        }}
-      >
-        Scan QR Code
-      </Text> */}
 
       <View style={{ alignItems: "center", top: 200, left: 13, opacity: 0.6 }}>
         <Ionicons name={"scan-outline"} size={400} color={"white"} />
@@ -63,22 +98,25 @@ export default function BarcodeScanner() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginRight: 10,
-    height: "100%",
+    // marginRight: 10,
+    // height: "100%",
+    // backgroundColor: "white",
+    // width: "100%",
     backgroundColor: "white",
-    width: "100%",
   },
   text: {
-    marginTop: "80%",
+    marginTop: "70%",
     color: "grey",
-    padding: 10,
+    padding: 13,
     textAlign: "center",
     justifyContent: "center",
     position: "relative",
     backgroundColor: "white",
     alignSelf: "center",
-    width: 150,
+    width: 200,
     borderRadius: 10,
+    height: 50,
+    fontWeight: "bold",
   },
   barcode: {
     height: 300,
