@@ -7,6 +7,7 @@ import {
     ScrollView,
     TouchableOpacity,
     ActivityIndicator,
+    Image,
 } from "react-native";
 import Alerts from "../Components/Alert";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
@@ -86,53 +87,60 @@ const Home = () => {
                 }}
             >
                 <View style={{ flexDirection: "row" }}>
-                    <View>
-                        <Text style={styles.name}>{userDetailsData?.user.nama}</Text>
-                        <Text style={styles.position}>
-                            {userDetailsData?.user.divisi}
-                        </Text>
-                    </View>
+                    <Image
+                        source={require("../assets/logoNore.png")}
+                        style={{ width: 100, height: 50, alignSelf: "center" }}
+                    />
                 </View>
 
-                <Icon name="logout" size={30} color={"grey"} onPress={onLogOut} />
+                <Icon name="logout" size={30} color={"#BBBBBB"} onPress={onLogOut} />
             </View>
-
+            {!userDetailsData?.user.validasi_presensi === true && (
+                <>
+                    <View
+                        style={{
+                            backgroundColor: "#3EB772",
+                            borderWidth: 0,
+                            paddingTop: 15,
+                        }}
+                    >
+                        {/* ini alert */}
+                        <View
+                            style={{
+                                height: deviceHeight / 9,
+                                justifyContent: "space-around",
+                                alignItems: "center",
+                                // borderWidth: 1,
+                            }}
+                        >
+                            <Alerts />
+                        </View>
+                    </View>
+                </>
+            )}
             <View style={{ backgroundColor: "#3EB772" }}>
-                {/* ini alert */}
-                <View
-                    style={{
-                        height: deviceHeight / 9,
-                        justifyContent: "space-around",
-                        alignItems: "center",
-                        // borderWidth: 1,
-                    }}
-                >
-                    <Alerts />
-                </View>
-
                 {/* ini main fitur */}
                 <View style={styles.mainFitur}>
                     <View
                         style={{
-                            justifyContent: "space-between",
+                            // justifyContent: "space-between",
+                            paddingVertical: 10,
+                            justifyContent: "center",
+                            maxWidth: deviceWidth / 2.1,
+                            maxHeight: deviceHeight / 9,
                         }}
                     >
                         <Text
+                            numberOfLines={1}
                             style={{
-                                fontSize: 42,
+                                fontSize: 26,
                                 fontWeight: "bold",
                             }}
                         >
-                            {new Date().getHours()}
-                            {":"}
-                            {new Date().getMinutes()}
+                            {userDetailsData?.user.username}
                         </Text>
-                        <Text style={{ color: "grey", fontSize: 22, fontWeight: "bold" }}>
-                            {new Date().getDate()}
-                            {"/"}
-                            {new Date().getMonth() + 1}
-                            {"/"}
-                            {new Date().getFullYear()}
+                        <Text style={{ color: "grey", fontSize: 15, fontWeight: "bold" }}>
+                            {userDetailsData?.user.divisi}
                         </Text>
                     </View>
 
@@ -168,7 +176,7 @@ const Home = () => {
                 <View
                     style={{
                         ...styles.body,
-                        height: deviceHeight / 5.8,
+                        height: deviceHeight / 6,
                     }}
                 >
                     <Body
@@ -280,8 +288,8 @@ const styles = StyleSheet.create({
         // alignContent: "center",
         justifyContent: "space-between",
         backgroundColor: "white",
-        paddingVertical: 20,
-        paddingHorizontal: 30,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
         borderRadius: 20,
     },
     name: {
@@ -305,7 +313,7 @@ const styles = StyleSheet.create({
     txtMainMenu: {
         fontSize: 14,
         color: "white",
-        marginTop: 5,
+        // marginTop: 2,
         fontWeight: "600",
     },
     presensiBox: {
@@ -321,7 +329,7 @@ const styles = StyleSheet.create({
     presensiButton: {
         backgroundColor: "#3EB772",
         borderRadius: 15,
-        padding: 10,
+        padding: 15,
         justifyContent: "center",
         alignItems: "center",
     },

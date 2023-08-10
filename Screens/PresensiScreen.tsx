@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { FC, useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     View,
     StyleSheet,
@@ -23,7 +23,6 @@ import { useStatusPresensi } from "../src/StatusPresensi";
 import { BASE_URL } from "../config";
 import getImageMeta from "../utils/getImageMeta";
 import { ScrollView } from "react-native-gesture-handler";
-import { BottomSheetModal, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import defaultAxios, { AxiosError } from "axios";
 
 type PresensiData = {
@@ -60,14 +59,6 @@ const PresensiScreen = () => {
         sendDataToApi();
     };
 
-    // const bottomSheetModalRef = useRef(null);
-
-    // const snapPoints = ["40%"];
-
-    // function handlePresentModal() {
-    //   bottomSheetModalRef.current?.present();
-    // }
-
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<number | null>(null);
     const [items, setItems] = useState<{ label: string; value: number }[]>([]);
@@ -102,8 +93,8 @@ const PresensiScreen = () => {
         bodyFormData.append("bukti", file as any);
         bodyFormData.append("tanggal", formattedDate);
         bodyFormData.append("status", value as any);
-        // bodyFormData.append("keterangan", keterangan);
-
+        bodyFormData.append("keterangan", keterangan);
+        console.log("Ket", keterangan);
         console.log("BODY:", bodyFormData);
         axios
             .post<PresensiData>(apiUrl, bodyFormData, {
@@ -114,12 +105,24 @@ const PresensiScreen = () => {
             .then((response) => {
                 if (value === 1) {
                     Alert.alert("Berhasil Presensi", response.data.message);
+                    if (UserDetailsData?.user) {
+                        UserDetailsData.user.validasi_presensi = true;
+                    }
                 } else if (value === 2) {
                     Alert.alert("Berhasil Izin", response.data.message);
+                    if (UserDetailsData?.user) {
+                        UserDetailsData.user.validasi_presensi = true;
+                    }
                 } else if (value === 3) {
                     Alert.alert("Semoga cepet sembuh:)", response.data.message);
+                    if (UserDetailsData?.user) {
+                        UserDetailsData.user.validasi_presensi = true;
+                    }
                 } else if (value === 4) {
                     Alert.alert("Berhasil WFH", response.data.message);
+                    if (UserDetailsData?.user) {
+                        UserDetailsData.user.validasi_presensi = true;
+                    }
                 } else {
                     Alert.alert(
                         "Status Tidak Dikenali",
@@ -141,7 +144,10 @@ const PresensiScreen = () => {
                 //     `${serverError.response.data.message}`,
                 //     ToastAndroid.LONG
                 // );
-                Alert.alert("Terjadi Kesalahan", `${serverError.response.data?.message}`);
+                Alert.alert(
+                    "Terjadi Kesalahan!",
+                    `${serverError.response.data?.message}`
+                );
             } else {
                 ToastAndroid.show(
                     `Terjadi Kesalahan! Silahkan coba lagi.`,
@@ -276,18 +282,22 @@ const PresensiScreen = () => {
                                             Pilih file
                                         </Text>
                                     </TouchableOpacity>
+                                    {file && (
+                                        <Text style={{ padding: 5 }}>
+                                            File:
+                                            {file.name.length > 20
+                                                ? file.name.substring(0, 20) + "..."
+                                                : file.name}
+                                        </Text>
+                                    )}
                                 </View>
-                                {file && (
-                                    <Text numberOfLines={1} style={{ padding: 5 }}>
-                                        File: {file.name}
-                                    </Text>
-                                )}
                             </View>
+
                             <View style={styles.judulComponent}>
                                 <Text style={{ fontSize: 18 }}>Keterangan</Text>
                                 <View>
                                     <TextInput
-                                        placeholder="Isi Keterangan"
+                                        placeholder="Isi Keterangan..."
                                         value={keterangan}
                                         style={{
                                             ...styles.TextField,
@@ -302,14 +312,7 @@ const PresensiScreen = () => {
 
                     <TouchableOpacity
                         onPress={onSubmitPressed}
-                        style={{
-                            backgroundColor: "#3EB772",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            padding: 10,
-                            borderRadius: 10,
-                            marginVertical: 15,
-                        }}
+                        style={styles.kirimButton}
                     >
                         <Text
                             style={{ fontWeight: "bold", color: "white", fontSize: 18 }}
@@ -343,7 +346,7 @@ const styles = StyleSheet.create({
         margin: 20,
     },
     txtHead: {
-        width: "80%",
+        width: "83%",
         fontSize: 20,
         fontWeight: "bold",
         color: "black",
@@ -370,5 +373,14 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
         borderColor: "black",
+    },
+    kirimButton: {
+        backgroundColor: "#3EB772",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 13,
+        borderRadius: 10,
+        marginVertical: 30,
+        marginBottom: 60,
     },
 });
