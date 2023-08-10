@@ -27,12 +27,18 @@ import { BottomSheetModal, BottomSheetModalProvider } from "@gorhom/bottom-sheet
 import defaultAxios, { AxiosError } from "axios";
 
 type PresensiData = {
-    user_id: number;
-    tanggal: string;
-    status: number;
-    bukti: string;
-    keterangan: string;
+    code: number;
+    message: string;
+    status: string;
+    data: {
+        user_id: number;
+        tanggal: string;
+        status: number;
+        bukti: string;
+        keterangan: string;
+    };
 };
+
 // interface IPresensiScreenProps {}
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 
@@ -95,59 +101,47 @@ const PresensiScreen = () => {
         bodyFormData.append("user_id", String(UserDetailsData?.user.id));
         bodyFormData.append("bukti", file as any);
         bodyFormData.append("tanggal", formattedDate);
-        bodyFormData.append("status", "2");
+        bodyFormData.append("status", value as any);
         // bodyFormData.append("keterangan", keterangan);
 
         console.log("BODY:", bodyFormData);
         axios
-            .post<any>(apiUrl, bodyFormData, {
+            .post<PresensiData>(apiUrl, bodyFormData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             })
             .then((response) => {
-                // if (response.data.status === 1) {
-                //     console.log("API Response:", response.data);
-                //     Alert.alert("Anda Berhasil Presensi", response.data.tanggal);
-                // } else if (response.data.status === 2) {
-                //     console.log("API Response:", response.data);
-                //     Alert.alert("Anda Berhasil Izin", response.data.tanggal);
-                // } else if (response.data.status === 3) {
-                //     console.log("API Response:", response.data);
-                //     Alert.alert("Anda Berhasil Cuti", response.data.tanggal);
-                // } else if (response.data.status === 4) {
-                //     console.log("API Response:", response.data);
-                //     Alert.alert("Anda Berhasil WFH", response.data.tanggal);
-                // } else {
-                //     console.log("API Response:", response.data);
-                //     Alert.alert(
-                //         "Status Tidak Dikenali",
-                //         `Status: ${response.data.status}, Tanggal: ${response.data.tanggal}`
-                //     );
-                // }
+                if (value === 1) {
+                    Alert.alert("Berhasil Presensi", response.data.message);
+                } else if (value === 2) {
+                    Alert.alert("Berhasil Izin", response.data.message);
+                } else if (value === 3) {
+                    Alert.alert("Semoga cepet sembuh:)", response.data.message);
+                } else if (value === 4) {
+                    Alert.alert("Berhasil WFH", response.data.message);
+                } else {
+                    Alert.alert(
+                        "Status Tidak Dikenali",
+                        `Status: ${response.data.data.status}, Pesan: ${response.data.message}`
+                    );
+                }
             })
             .catch((error) => {
                 handleErrorResponse(error);
             });
     };
-    // useEffect(() => {
-    //   const status = StatusPresensiData?.user?.map((value) => ({
-    //     label: value.nama,
-    //     value: value.id,
-    //   }));
-    //   setItems(status ?? []);
-    //   console.log("StatusPresensiData:", StatusPresensiData);
-    // }, [StatusPresensiData?.user]);
 
     const handleErrorResponse = useCallback((error: any) => {
         if (defaultAxios.isAxiosError(error)) {
             const serverError = error as AxiosError<any>;
             if (serverError && serverError.response) {
                 console.log(JSON.stringify(serverError.response.data));
-                ToastAndroid.show(
-                    `${serverError.response.data.message}`,
-                    ToastAndroid.LONG
-                );
+                // ToastAndroid.show(
+                //     `${serverError.response.data.message}`,
+                //     ToastAndroid.LONG
+                // );
+                Alert.alert("Terjadi Kesalahan", `${serverError.response.data?.message}`);
             } else {
                 ToastAndroid.show(
                     `Terjadi Kesalahan! Silahkan coba lagi.`,
@@ -175,7 +169,7 @@ const PresensiScreen = () => {
             <Text>Loading...</Text>
         </View>;
     }
-    console.log(value);
+    // console.log(value);
 
     return (
         <View style={{ flex: 1 }}>
@@ -263,41 +257,49 @@ const PresensiScreen = () => {
                         />
                     </View>
 
-                    <View style={styles.judulComponent}>
-                        <Text style={{ fontSize: 18 }}>Bukti</Text>
-                        <View>
-                            <TouchableOpacity
-                                onPress={pickPdf}
-                                style={{
-                                    width: deviceWidth / 1.7,
-                                    ...styles.component,
-                                    borderColor: "black",
-                                    borderWidth: 1,
-                                    padding: 10,
-                                }}
-                            >
-                                <Text style={{ color: "black", fontSize: 16 }}>
-                                    Pilih file
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    {file && (
-                        <Text numberOfLines={1} style={{ padding: 5 }}>
-                            File: {file.name}
-                        </Text>
+                    {(value === 2 || value === 3 || value === 4) && (
+                        <>
+                            <View style={styles.judulComponent}>
+                                <Text style={{ fontSize: 18 }}>Bukti</Text>
+                                <View>
+                                    <TouchableOpacity
+                                        onPress={pickPdf}
+                                        style={{
+                                            width: deviceWidth / 1.7,
+                                            ...styles.component,
+                                            borderColor: "black",
+                                            borderWidth: 1,
+                                            padding: 10,
+                                        }}
+                                    >
+                                        <Text style={{ color: "black", fontSize: 16 }}>
+                                            Pilih file
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                                {file && (
+                                    <Text numberOfLines={1} style={{ padding: 5 }}>
+                                        File: {file.name}
+                                    </Text>
+                                )}
+                            </View>
+                            <View style={styles.judulComponent}>
+                                <Text style={{ fontSize: 18 }}>Keterangan</Text>
+                                <View>
+                                    <TextInput
+                                        placeholder="Isi Keterangan"
+                                        value={keterangan}
+                                        style={{
+                                            ...styles.TextField,
+                                            width: deviceWidth / 1.7,
+                                        }}
+                                        onChangeText={setKeterangan}
+                                    />
+                                </View>
+                            </View>
+                        </>
                     )}
-                    <View style={styles.judulComponent}>
-                        <Text style={{ fontSize: 18 }}>Keterangan</Text>
-                        <View>
-                            <TextInput
-                                placeholder="Isi Keterangan"
-                                value={keterangan}
-                                style={{ ...styles.TextField, width: deviceWidth / 1.7 }}
-                                onChangeText={setKeterangan}
-                            />
-                        </View>
-                    </View>
+
                     <TouchableOpacity
                         onPress={onSubmitPressed}
                         style={{
