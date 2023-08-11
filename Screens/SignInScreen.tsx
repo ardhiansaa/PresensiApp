@@ -82,11 +82,11 @@ const SignInScreen = () => {
           type="SECONDARY"
         /> */}
 
-                <SignInUpButton
+                {/* <SignInUpButton
                     onPress={onForgotPressed}
                     textButton="Forgot Password?"
                     type="TERTIARY"
-                />
+                /> */}
             </ScrollView>
         </View>
     );

@@ -133,13 +133,15 @@ const Home = () => {
                         <Text
                             numberOfLines={1}
                             style={{
-                                fontSize: 26,
+                                fontSize: 28,
                                 fontWeight: "bold",
                             }}
                         >
                             {userDetailsData?.user.username}
                         </Text>
-                        <Text style={{ color: "grey", fontSize: 15, fontWeight: "bold" }}>
+                        <Text
+                            style={{ color: "#BBBBBB", fontSize: 15, fontWeight: "bold" }}
+                        >
                             {userDetailsData?.user.divisi}
                         </Text>
                     </View>

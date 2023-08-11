@@ -160,7 +160,7 @@ const PresensiScreen = () => {
         LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
     }, []);
     useEffect(() => {
-        if (StatusPresensiData) {
+        if (StatusPresensiData?.user && StatusPresensiData?.user.length > 0) {
             const status = StatusPresensiData.user?.map((value) => ({
                 label: value.nama,
                 value: value.id,
