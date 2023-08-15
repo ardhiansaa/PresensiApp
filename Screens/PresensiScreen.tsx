@@ -46,6 +46,7 @@ const PresensiScreen = () => {
     const deviceWidth = Dimensions.get("window").width;
 
     const [keterangan, setKeterangan] = useState<string>("");
+    const [keteranganError, setKeteranganError] = useState<string>("");
 
     const [file, setFile] = useState<any>();
     const { data: UserDetailsData } = useUserDetails();
@@ -56,6 +57,13 @@ const PresensiScreen = () => {
         navigation.navigate("Main");
     };
     const onSubmitPressed = () => {
+        if (!keterangan.trim()) {
+            setKeteranganError("Keterangan wajib diisi");
+            return;
+        }
+
+        // Clear the error and proceed with sending data to the API
+        setKeteranganError("");
         sendDataToApi();
     };
 
@@ -302,9 +310,20 @@ const PresensiScreen = () => {
                                         style={{
                                             ...styles.TextField,
                                             width: deviceWidth / 1.7,
+                                            borderColor: keteranganError
+                                                ? "red"
+                                                : "black", // Set border color based on validation
                                         }}
-                                        onChangeText={setKeterangan}
+                                        onChangeText={(text) => {
+                                            setKeterangan(text);
+                                            setKeteranganError(""); // Clear error when user types
+                                        }}
                                     />
+                                    {keteranganError ? (
+                                        <Text style={{ color: "red", fontSize: 12 }}>
+                                            {keteranganError}
+                                        </Text>
+                                    ) : null}
                                 </View>
                             </View>
                         </>

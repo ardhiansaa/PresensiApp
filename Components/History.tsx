@@ -15,7 +15,7 @@ const History = (props: IHistoryProps) => {
             style={{
                 ...styles.component,
                 width: deviceWidth / 1.11,
-                height: deviceHeight / 9,
+                height: deviceHeight / 8.6,
             }}
         >
             {props.icon}
