@@ -1,5 +1,12 @@
 import React, { FC, useState, useContext } from "react";
-import { View, StyleSheet, Image, ScrollView, KeyboardAvoidingView } from "react-native";
+import {
+    View,
+    StyleSheet,
+    Image,
+    ScrollView,
+    KeyboardAvoidingView,
+    ActivityIndicator,
+} from "react-native";
 import CustomInputs from "../Components/CustomInput";
 import SignInUpButton from "../Components/SignInUpButton";
 import { useNavigation } from "@react-navigation/native";
@@ -44,7 +51,28 @@ const SignInScreen = () => {
         navigation.navigate("SignUp");
     };
 
-    const { login } = useContext(AuthContext);
+    const { login, isLoading } = useContext(AuthContext);
+    const getContent = () => {
+        return (
+            <ActivityIndicator
+                size="large"
+                style={{ justifyContent: "center", alignItems: "center" }}
+            />
+        );
+    };
+    if (isLoading) {
+        return (
+            <View
+                style={{
+                    height: "100%",
+                    justifyContent: "center",
+                    // alignItems: "center",
+                }}
+            >
+                {getContent()}
+            </View>
+        );
+    }
 
     return (
         <View style={{ flex: 1 }}>

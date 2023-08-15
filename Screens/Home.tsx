@@ -137,7 +137,7 @@ const Home = () => {
                                 fontWeight: "bold",
                             }}
                         >
-                            {userDetailsData?.user.username}
+                            {userDetailsData?.user.nama}
                         </Text>
                         <Text
                             style={{ color: "#BBBBBB", fontSize: 15, fontWeight: "bold" }}
@@ -240,11 +240,11 @@ const Home = () => {
                     // marginHorizontal: 25,
                     backgroundColor: "white",
                     paddingBottom: 20,
-                    height: deviceHeight / 3.3,
+                    // height: deviceHeight / 3.3,
                 }}
             >
                 {presensiData?.data?.presensi
-                    .slice(-2)
+                    .slice(-5)
                     .reverse()
                     .map((item) => (
                         <View key={item.id}>
