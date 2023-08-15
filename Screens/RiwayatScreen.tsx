@@ -48,10 +48,6 @@ const RiwayatScreen = () => {
     };
     // const navigation = useNavigation<NavigationProps>();
 
-    // const onBackPressed = () => {
-    //     navigation.navigate("Main");
-    // };
-
     const totalPages = Math.ceil((data?.data?.presensi?.length ?? 0) / ITEMS_PER_PAGE);
 
     const handlePageChange = (page: number) => {
@@ -95,9 +91,6 @@ const RiwayatScreen = () => {
                 >
                     <Text style={styles.txtHead}>Riwayat</Text>
                 </View>
-
-                {/* ini filter */}
-                <View></View>
 
                 {/* <View
                     style={{

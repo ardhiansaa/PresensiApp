@@ -3,7 +3,6 @@ import { Text, View, StyleSheet, Button, Alert } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import axios from "../services/axios";
-import { AxiosResponse } from "axios";
 import { BASE_URL } from "../config";
 
 type Response = {
@@ -55,10 +54,18 @@ export default function BarcodeScanner() {
     };
 
     if (hasPermission === null) {
-        return <Text>Requesting for camera permission</Text>;
+        return (
+            <Text style={{ justifyContent: "center", alignContent: "center" }}>
+                Requesting for camera permission
+            </Text>
+        );
     }
     if (hasPermission === false) {
-        return <Text>No access to camera</Text>;
+        return (
+            <Text style={{ justifyContent: "center", alignContent: "center" }}>
+                No access to camera
+            </Text>
+        );
     }
 
     return (
