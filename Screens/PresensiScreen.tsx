@@ -68,7 +68,8 @@ const PresensiScreen = () => {
     };
 
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<number | null>(null);
+    const [value, setValue] = useState<number | null>(1); // Set the initial value to 1 or another suitable default
+
     const [items, setItems] = useState<{ label: string; value: number }[]>([]);
 
     const pickPdf = async () => {

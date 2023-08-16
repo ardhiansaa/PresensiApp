@@ -243,18 +243,19 @@ const Home = () => {
                     // height: deviceHeight / 3.3,
                 }}
             >
-                {presensiData?.data?.presensi
-                    .slice(-5)
-                    .reverse()
-                    .map((item) => (
-                        <View key={item.id}>
-                            <History
-                                textJudul={item.status_kehadiran}
-                                textTimeStamp={item.tanggal}
-                                icon={getHistoryIcon(item.status)}
-                            />
-                        </View>
-                    ))}
+                {presensiData?.data?.presensi &&
+                    presensiData?.data?.presensi
+                        .slice(-5)
+                        .reverse()
+                        .map((item) => (
+                            <View key={item.id}>
+                                <History
+                                    textJudul={item.status_kehadiran}
+                                    textTimeStamp={item.tanggal}
+                                    icon={getHistoryIcon(item.status)}
+                                />
+                            </View>
+                        ))}
             </View>
         </ScrollView>
     );
