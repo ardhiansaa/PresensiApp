@@ -7,9 +7,9 @@
         "icon": "./assets/icon.png",
         "userInterfaceStyle": "light",
         "splash": {
-            "image": "./assets/logoNore.png",
-            "resizeMode": "contain",
-            "backgroundColor": "#3EB772"
+            "image": "./assets/splash.png",
+            "resizeMode": "cover",
+            "backgroundColor": "#fffff"
         },
         "assetBundlePatterns": ["**/*"],
         "ios": {

@@ -55,16 +55,16 @@ export default function BarcodeScanner() {
 
     if (hasPermission === null) {
         return (
-            <Text style={{ justifyContent: "center", alignContent: "center" }}>
-                Requesting for camera permission
-            </Text>
+            <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
+                <Text>Requesting for camera permission</Text>
+            </View>
         );
     }
     if (hasPermission === false) {
         return (
-            <Text style={{ justifyContent: "center", alignContent: "center" }}>
-                No access to camera
-            </Text>
+            <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
+                <Text>No access to camera</Text>
+            </View>
         );
     }
 
