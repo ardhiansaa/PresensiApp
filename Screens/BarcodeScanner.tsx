@@ -45,7 +45,7 @@ export default function BarcodeScanner() {
             });
     };
 
-    const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
+    const handleBarCodeScanned = ({ data }: { data: string }) => {
         setScanned(true);
         // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
 
@@ -75,12 +75,21 @@ export default function BarcodeScanner() {
                 style={StyleSheet.absoluteFillObject}
             />
 
-            <View style={{ alignItems: "center", top: 200, left: 13, opacity: 0.6 }}>
-                <Ionicons name={"scan-outline"} size={400} color={"white"} />
+            <View
+                style={{
+                    alignItems: "center",
+                    opacity: 0.6,
+                    justifyContent: "center",
+                    width: "100%",
+                    height: "100%",
+                    marginHorizontal: 10,
+                }}
+            >
+                <Ionicons name={"scan-outline"} size={350} color={"white"} />
             </View>
             {scanned && (
                 <Text style={styles.text} onPress={() => setScanned(false)}>
-                    Tap to Scan Again
+                    Sentuh untuk Memindai
                 </Text>
             )}
         </View>

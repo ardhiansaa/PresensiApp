@@ -29,6 +29,12 @@ const RiwayatScreen = () => {
     const deviceHeight = Dimensions.get("window").height;
     const { data, isLoading } = useGetPresensi();
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+
+    const handleCategorySelect = (category: number | null) => {
+        setSelectedCategory(category);
+        setCurrentPage(1); // Reset the current page when selecting a new category
+    };
 
     const getHistoryIcon = (status: number) => {
         switch (status) {
@@ -47,18 +53,27 @@ const RiwayatScreen = () => {
         }
     };
     // const navigation = useNavigation<NavigationProps>();
-
-    const totalPages = Math.ceil((data?.data?.presensi?.length ?? 0) / ITEMS_PER_PAGE);
-
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-    };
-
     const sortedPresensi = data?.data?.presensi?.slice().sort((a, b) => {
         const dateA = new Date(a.tanggal) as any;
         const dateB = new Date(b.tanggal) as any;
         return dateB - dateA;
     });
+
+    const visiblePresensi = sortedPresensi
+        ? sortedPresensi.filter(
+              (item) => selectedCategory === null || selectedCategory === item.status
+          )
+        : [];
+
+    const totalPages = Math.ceil(visiblePresensi.length / ITEMS_PER_PAGE);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const hasEnoughItemsToShowPagination = visiblePresensi.length > ITEMS_PER_PAGE;
 
     const getContent = () => {
         return <ActivityIndicator size="small" />;
@@ -77,8 +92,6 @@ const RiwayatScreen = () => {
         );
     }
 
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
     return (
         <SafeAreaView>
             <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
@@ -92,40 +105,98 @@ const RiwayatScreen = () => {
                     <Text style={styles.txtHead}>Riwayat</Text>
                 </View>
 
-                {/* <View
-                    style={{
-                        alignItems: "center",
-                        // marginHorizontal: 25,
-                        // backgroundColor: "white",
-                        paddingBottom: 20,
-                    }}
-                >
-                    {data?.data?.presensi
-                        .slice()
-                        .reverse()
-                        .map((item) => (
-                            <View key={item.id}>
-                                <History
-                                    textJudul={item.status_kehadiran}
-                                    textTimeStamp={item.tanggal}
-                                    icon={getHistoryIcon(item.status)}
-                                />
-                            </View>
-                        ))}
-                </View> */}
+                <View style={styles.categoryButtons}>
+                    <TouchableOpacity
+                        style={[
+                            styles.categoryButton,
+                            selectedCategory === null && styles.selectedCategoryButton,
+                        ]}
+                        onPress={() => handleCategorySelect(null)}
+                    >
+                        <Text
+                            style={[
+                                styles.categoryButtonText,
+                                selectedCategory === null && styles.selectedButtonText,
+                            ]}
+                        >
+                            Semua
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[
+                            styles.categoryButton,
+                            selectedCategory === 1 && styles.selectedCategoryButton,
+                        ]}
+                        onPress={() => handleCategorySelect(1)}
+                    >
+                        <Text
+                            style={[
+                                styles.categoryButtonText,
+                                selectedCategory === 1 && styles.selectedButtonText,
+                            ]}
+                        >
+                            Hadir
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[
+                            styles.categoryButton,
+                            selectedCategory === 2 && styles.selectedCategoryButton,
+                        ]}
+                        onPress={() => handleCategorySelect(2)}
+                    >
+                        <Text
+                            style={[
+                                styles.categoryButtonText,
+                                selectedCategory === 2 && styles.selectedButtonText,
+                            ]}
+                        >
+                            Izin
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[
+                            styles.categoryButton,
+                            selectedCategory === 3 && styles.selectedCategoryButton,
+                        ]}
+                        onPress={() => handleCategorySelect(3)}
+                    >
+                        <Text
+                            style={[
+                                styles.categoryButtonText,
+                                selectedCategory === 3 && styles.selectedButtonText,
+                            ]}
+                        >
+                            Sakit
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[
+                            styles.categoryButton,
+                            selectedCategory === 4 && styles.selectedCategoryButton,
+                        ]}
+                        onPress={() => handleCategorySelect(4)}
+                    >
+                        <Text
+                            style={[
+                                styles.categoryButtonText,
+                                selectedCategory === 4 && styles.selectedButtonText,
+                            ]}
+                        >
+                            WFH
+                        </Text>
+                    </TouchableOpacity>
+                </View>
 
                 {/* ini konten */}
                 <View
                     style={{
                         alignItems: "center",
-                        // marginHorizontal: 25,
-                        // backgroundColor: "white",
-                        // paddingBottom: 20,
-                        marginTop: 15,
+                        marginBottom: 20,
                     }}
                 >
-                    {sortedPresensi &&
-                        sortedPresensi.slice(startIndex, endIndex).map((item) => (
+                    {visiblePresensi &&
+                        visiblePresensi.slice(startIndex, endIndex).map((item) => (
                             <View key={item.id}>
                                 <History
                                     textJudul={item.status_kehadiran}
@@ -137,49 +208,52 @@ const RiwayatScreen = () => {
                 </View>
 
                 {/* Pagination */}
-                <View
-                    style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        marginVertical: 20,
-                        marginHorizontal: 20,
-                    }}
-                >
-                    <TouchableOpacity
-                        style={[
-                            styles.paginationButton,
-                            { opacity: currentPage === 1 ? 0.3 : 1 },
-                        ]}
-                        onPress={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
+                {hasEnoughItemsToShowPagination && (
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            // marginVertical: 20,
+                            marginHorizontal: 20,
+                            marginBottom: 10,
+                        }}
                     >
-                        <Icon
-                            name="arrow-left-drop-circle-outline"
-                            size={35}
-                            color="grey"
-                        />
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[
+                                styles.paginationButton,
+                                { opacity: currentPage === 1 ? 0.3 : 1 },
+                            ]}
+                            onPress={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                        >
+                            <Icon
+                                name="arrow-left-drop-circle-outline"
+                                size={35}
+                                color="grey"
+                            />
+                        </TouchableOpacity>
 
-                    <Text style={styles.currentPageText}>
-                        {" "}
-                        Halaman {currentPage} dari {totalPages}
-                    </Text>
+                        <Text style={styles.currentPageText}>
+                            {" "}
+                            Halaman {currentPage} dari {totalPages}
+                        </Text>
 
-                    <TouchableOpacity
-                        style={[
-                            styles.paginationButton,
-                            { opacity: currentPage === totalPages ? 0.3 : 1 },
-                        ]}
-                        onPress={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                        <Icon
-                            name="arrow-right-drop-circle-outline"
-                            size={35}
-                            color="grey"
-                        />
-                    </TouchableOpacity>
-                </View>
+                        <TouchableOpacity
+                            style={[
+                                styles.paginationButton,
+                                { opacity: currentPage === totalPages ? 0.3 : 1 },
+                            ]}
+                            onPress={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                        >
+                            <Icon
+                                name="arrow-right-drop-circle-outline"
+                                size={35}
+                                color="grey"
+                            />
+                        </TouchableOpacity>
+                    </View>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -234,5 +308,29 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         marginHorizontal: 20,
         alignSelf: "center",
+        opacity: 0.65,
+    },
+    categoryButtons: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        margin: 20,
+    },
+    categoryButton: {
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: "#DDDDDD",
+    },
+    selectedCategoryButton: {
+        backgroundColor: "#3EB772",
+    },
+    categoryButtonText: {
+        color: "black",
+        fontWeight: "bold",
+    },
+    selectedButtonText: {
+        color: "white",
+        fontWeight: "bold",
     },
 });

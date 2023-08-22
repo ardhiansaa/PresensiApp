@@ -70,7 +70,7 @@ const BottomTabNavigator = () => {
                 }}
             />
             <tab.Screen
-                name="History"
+                name="Riwayat"
                 component={RiwayatScreen}
                 options={{
                     tabBarIcon: ({ size, focused }) => (

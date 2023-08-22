@@ -8,30 +8,23 @@ import AuthProvider from "./Context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 export default function App() {
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <SafeAreaView style={styles.container}>
-          {/* <SignIn /> */}
-          {/* <SignUpScreen /> */}
-          {/* <BarcodeScanner /> */}
-          {/* <Home /> */}
-          {/* <ConfirmEmailScreen /> */}
-          {/* <ResetPasswordScreen /> */}
-          {/* <NewPasswordScreen /> */}
-          <QueryClientProvider client={queryClient}>
-            <Navigations />
-            <StatusBar style="auto" />
-          </QueryClientProvider>
-        </SafeAreaView>
-      </AuthProvider>
-    </GestureHandlerRootView>
-  );
+    return (
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <AuthProvider>
+                <SafeAreaView style={styles.container}>
+                    <QueryClientProvider client={queryClient}>
+                        <Navigations />
+                        <StatusBar style="auto" />
+                    </QueryClientProvider>
+                </SafeAreaView>
+            </AuthProvider>
+        </GestureHandlerRootView>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FBFC",
-  },
+    container: {
+        flex: 1,
+        backgroundColor: "#F9FBFC",
+    },
 });

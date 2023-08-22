@@ -9,9 +9,10 @@ import {
     TouchableOpacity,
     Alert,
     TextInput,
-    Button,
     LogBox,
     ToastAndroid,
+    ScrollView,
+    ActivityIndicator,
 } from "react-native";
 import { NavigationParamList } from "../types/navigation";
 import Icons from "@expo/vector-icons/Ionicons";
@@ -22,7 +23,6 @@ import { useUserDetails } from "../src/UserDetails";
 import { useStatusPresensi } from "../src/StatusPresensi";
 import { BASE_URL } from "../config";
 import getImageMeta from "../utils/getImageMeta";
-import { ScrollView } from "react-native-gesture-handler";
 import defaultAxios, { AxiosError } from "axios";
 
 type PresensiData = {
@@ -52,23 +52,28 @@ const PresensiScreen = () => {
     const { data: UserDetailsData } = useUserDetails();
     const { data: StatusPresensiData } = useStatusPresensi();
     const [isLoadingStatusPresensi, setIsLoadingStatusPresensi] = useState(true);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
     const navigation = useNavigation<NavigationProps>();
     const onBackPressed = () => {
         navigation.navigate("Main");
     };
     const onSubmitPressed = () => {
-        if (!keterangan.trim()) {
-            setKeteranganError("Keterangan wajib diisi");
-            return;
+        if (value === 1) {
+            sendDataToApi();
+        } else {
+            if (!keterangan.trim()) {
+                setKeteranganError("Keterangan wajib diisi");
+                return;
+            }
+            // Clear the error and proceed with sending data to the API
+            setKeteranganError("");
+            sendDataToApi();
         }
-
-        // Clear the error and proceed with sending data to the API
-        setKeteranganError("");
-        sendDataToApi();
     };
 
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<number | null>(1); // Set the initial value to 1 or another suitable default
+    const [value, setValue] = useState<number | null>(0); // Set the initial value to 1 or another suitable default
 
     const [items, setItems] = useState<{ label: string; value: number }[]>([]);
 
@@ -169,15 +174,17 @@ const PresensiScreen = () => {
         LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
     }, []);
     useEffect(() => {
-        if (StatusPresensiData?.user && StatusPresensiData?.user.length > 0) {
-            const status = StatusPresensiData.user?.map((value) => ({
-                label: value.nama,
-                value: value.id,
-            }));
-            setItems(status ?? []);
-            setIsLoadingStatusPresensi(false);
+        if (isDropdownOpen) {
+            if (StatusPresensiData?.user && StatusPresensiData?.user.length > 0) {
+                const status = StatusPresensiData.user?.map((value) => ({
+                    label: value.nama,
+                    value: value.id,
+                }));
+                setItems(status ?? []);
+                setIsLoadingStatusPresensi(false);
+            }
         }
-    }, [StatusPresensiData]);
+    }, [isDropdownOpen]);
 
     if (isLoadingStatusPresensi) {
         <View>
@@ -269,7 +276,18 @@ const PresensiScreen = () => {
                             textStyle={{
                                 fontSize: 16,
                             }}
+                            onOpen={() => setIsDropdownOpen(true)}
+                            onClose={() => setIsDropdownOpen(false)}
+                            // onChangeValue={(selectedValue) => {
+                            //     console.log("Selected Value:", selectedValue);
+                            //     setValue(selectedValue);
+                            // }}
                         />
+                        {/* {isLoadingStatusPresensi ? (
+                            <View style={styles.loadingContainer}>
+                                <ActivityIndicator size={10} color="#3EB772" />
+                            </View>
+                        ) : null} */}
                     </View>
 
                     {(value === 2 || value === 3 || value === 4) && (
@@ -402,5 +420,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginVertical: 30,
         marginBottom: 60,
+    },
+    loadingContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 10, // Adjust as needed
     },
 });
