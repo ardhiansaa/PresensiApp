@@ -1,15 +1,16 @@
 {
     "expo": {
-        "name": "PresensiApp",
+        "name": "Presensi App",
         "slug": "PresensiApp",
-        "version": "1.0.0",
+        "version": "1.0.1",
+        "owner": "abillionairee",
         "orientation": "portrait",
         "icon": "./assets/icon.png",
         "userInterfaceStyle": "light",
         "splash": {
             "image": "./assets/splash.png",
             "resizeMode": "cover",
-            "backgroundColor": "#fffff"
+            "backgroundColor": "#ffffff"
         },
         "assetBundlePatterns": ["**/*"],
         "ios": {
@@ -31,11 +32,17 @@
                 {
                     "iCloudContainerEnvironment": "Production"
                 }
+            ],
+            [
+                "expo-barcode-scanner",
+                {
+                    "cameraPermission": "Allow $(PRODUCT_NAME) to access camera."
+                }
             ]
         ],
         "extra": {
             "eas": {
-                "projectId": "062fa954-daa2-464f-8ada-47eceee7d3f7"
+                "projectId": "43b7e117-8559-43fe-bb1c-c74a60ea9e01"
             }
         }
     }

@@ -12,7 +12,6 @@ import {
     LogBox,
     ToastAndroid,
     ScrollView,
-    ActivityIndicator,
 } from "react-native";
 import { NavigationParamList } from "../types/navigation";
 import Icons from "@expo/vector-icons/Ionicons";
