@@ -107,8 +107,8 @@ const PresensiScreen = () => {
         bodyFormData.append("tanggal", formattedDate);
         bodyFormData.append("status", value as any);
         bodyFormData.append("keterangan", keterangan);
-        console.log("Ket", keterangan);
-        console.log("BODY:", bodyFormData);
+        // console.log("Ket", keterangan);
+        // console.log("BODY:", bodyFormData);
         axios
             .post<PresensiData>(apiUrl, bodyFormData, {
                 headers: {
@@ -152,15 +152,15 @@ const PresensiScreen = () => {
         if (defaultAxios.isAxiosError(error)) {
             const serverError = error as AxiosError<any>;
             if (serverError && serverError.response) {
-                console.log(JSON.stringify(serverError.response.data));
-                // ToastAndroid.show(
-                //     `${serverError.response.data.message}`,
-                //     ToastAndroid.LONG
-                // );
-                Alert.alert(
-                    "Terjadi Kesalahan!",
-                    `${serverError.response.data?.message}`
+                // console.log(JSON.stringify(serverError.response.data));
+                ToastAndroid.show(
+                    `${serverError.response.data.message}`,
+                    ToastAndroid.LONG
                 );
+                // Alert.alert(
+                //     "Terjadi Kesalahan!",
+                //     `${serverError.response.data?.message}`
+                // );
             } else {
                 ToastAndroid.show(
                     `Terjadi Kesalahan! Silahkan coba lagi.`,

@@ -75,16 +75,7 @@ export default function BarcodeScanner() {
                 style={StyleSheet.absoluteFillObject}
             />
 
-            <View
-                style={{
-                    alignItems: "center",
-                    opacity: 0.6,
-                    justifyContent: "center",
-                    width: "100%",
-                    height: "100%",
-                    marginHorizontal: 10,
-                }}
-            >
+            <View style={styles.overlay}>
                 <Ionicons name={"scan-outline"} size={350} color={"white"} />
             </View>
             {scanned && (
@@ -105,19 +96,40 @@ const styles = StyleSheet.create({
         // width: "100%",
         backgroundColor: "white",
     },
+    // text: {
+    //     marginTop: "20%",
+    //     color: "grey",
+    //     padding: 13,
+    //     textAlign: "center",
+    //     justifyContent: "center",
+    //     position: "relative",
+    //     backgroundColor: "white",
+    //     alignSelf: "center",
+    //     width: 200,
+    //     borderRadius: 10,
+    //     height: 50,
+    //     fontWeight: "bold",
+    // },
+    overlay: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        backgroundColor: "transparent",
+        marginHorizontal: 15,
+    },
     text: {
-        marginTop: "70%",
+        marginTop: 700, // Adjust this value as needed
         color: "grey",
         padding: 13,
         textAlign: "center",
         justifyContent: "center",
-        position: "relative",
         backgroundColor: "white",
-        alignSelf: "center",
-        width: 200,
         borderRadius: 10,
-        height: 50,
         fontWeight: "bold",
+        marginHorizontal: 100,
     },
     barcode: {
         height: 300,

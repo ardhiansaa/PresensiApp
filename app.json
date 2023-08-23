@@ -1,8 +1,8 @@
 {
     "expo": {
-        "name": "Presensi App",
+        "name": "Nore Presensi",
         "slug": "PresensiApp",
-        "version": "1.0.1",
+        "version": "1.0.0",
         "owner": "abillionairee",
         "orientation": "portrait",
         "icon": "./assets/icon.png",
