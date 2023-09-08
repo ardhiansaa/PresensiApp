@@ -45,7 +45,7 @@ type ResponseUser = {
 export const useUserDetails = () => {
     const getUserDetails = async () => {
         const response = await axios.get<ResponseUser>(UserDetailsUrl);
-        console.log(response.data);
+        // console.log(response.data);
         return response.data;
     };
 

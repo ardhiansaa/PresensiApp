@@ -15,60 +15,62 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { NavigationParamList } from "../types/navigation";
 
-import { useGetPresensi } from "../src/GetPresensi";
-import History from "../Components/History";
+import { useGetCuti } from "../src/GetCuti";
+import CutiCards from "../Components/CutiCards";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // interface IRiwayatScreenProps {
 
 // }
-// type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
+type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 5;
 
-const RiwayatScreen = () => {
+const CutiScreen = () => {
     const deviceHeight = Dimensions.get("window").height;
-    const { data, isLoading } = useGetPresensi();
+    const { data, isLoading } = useGetCuti();
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-
-    const inset = useSafeAreaInsets();
 
     const handleCategorySelect = (category: number | null) => {
         setSelectedCategory(category);
         setCurrentPage(1); // Reset the current page when selecting a new category
     };
 
-    const getHistoryIcon = (status: number) => {
+    const inset = useSafeAreaInsets();
+    const navigation = useNavigation<NavigationProps>();
+    const onBackPressed = () => {
+        navigation.navigate("Main");
+    };
+
+    const onAjukanCutiPressed = () => {
+        navigation.navigate("AjukanCuti");
+    };
+
+    const getCutiIcon = (status: number) => {
         switch (status) {
             case 1:
-                return <Icon name="account-check" size={40} color="#3EB772" />;
+                return <Icon name="timer-sand" size={40} color="#F1C93B" />;
             case 2:
-                return <Icon name="email" size={40} color="red" />;
+                return <Icon name="check-circle" size={40} color="#3EB772" />;
             case 3:
-                return <Icon name="hospital-box" size={40} color={"#F1C93B"} />;
-            case 4:
-                return <Icon name="home-automation" size={40} color={"#3EB772"} />;
-            case 5:
-                return <Icon name="briefcase-clock" size={40} color="red" />;
-            default:
-                return <Icons name="ios-information-circle" size={40} color={"black"} />;
+                return <Icon name="close-circle" size={40} color="red" />;
         }
     };
     // const navigation = useNavigation<NavigationProps>();
-    const sortedPresensi = data?.data?.presensi?.slice().sort((a, b) => {
-        const dateA = new Date(a.tanggal) as any;
-        const dateB = new Date(b.tanggal) as any;
+    const sortedCuti = data?.data?.cuti?.slice().sort((a, b) => {
+        const dateA = new Date(a.created_at) as any;
+        const dateB = new Date(b.created_at) as any;
         return dateB - dateA;
     });
 
-    const visiblePresensi = sortedPresensi
-        ? sortedPresensi.filter(
+    const visibleCuti = sortedCuti
+        ? sortedCuti.filter(
               (item) => selectedCategory === null || selectedCategory === item.status
           )
         : [];
 
-    const totalPages = Math.ceil(visiblePresensi.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(visibleCuti.length / ITEMS_PER_PAGE);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -76,7 +78,7 @@ const RiwayatScreen = () => {
 
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    const hasEnoughItemsToShowPagination = visiblePresensi.length > ITEMS_PER_PAGE;
+    const hasEnoughItemsToShowPagination = visibleCuti.length > ITEMS_PER_PAGE;
 
     const getContent = () => {
         return <ActivityIndicator size="small" />;
@@ -105,7 +107,30 @@ const RiwayatScreen = () => {
                         ...styles.header,
                     }}
                 >
-                    <Text style={styles.txtHead}>Riwayat</Text>
+                    <TouchableOpacity onPress={onBackPressed}>
+                        <Icons name="ios-chevron-back-outline" size={30} color="black" />
+                    </TouchableOpacity>
+
+                    <Text style={styles.txtHead}>Cuti</Text>
+                </View>
+
+                <View style={{ margin: 20, marginBottom: 10 }}>
+                    <TouchableOpacity
+                        style={{
+                            backgroundColor: "#3EB772",
+                            padding: 20,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            borderRadius: 15,
+                        }}
+                        onPress={onAjukanCutiPressed}
+                    >
+                        <Text
+                            style={{ fontSize: 16, fontWeight: "bold", color: "white" }}
+                        >
+                            Ajukan Cuti
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.categoryButtons}>
@@ -138,7 +163,7 @@ const RiwayatScreen = () => {
                                 selectedCategory === 1 && styles.selectedButtonText,
                             ]}
                         >
-                            Hadir
+                            Diajukan
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -154,7 +179,7 @@ const RiwayatScreen = () => {
                                 selectedCategory === 2 && styles.selectedButtonText,
                             ]}
                         >
-                            Izin
+                            Diterima
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -170,23 +195,7 @@ const RiwayatScreen = () => {
                                 selectedCategory === 3 && styles.selectedButtonText,
                             ]}
                         >
-                            Sakit
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[
-                            styles.categoryButton,
-                            selectedCategory === 4 && styles.selectedCategoryButton,
-                        ]}
-                        onPress={() => handleCategorySelect(4)}
-                    >
-                        <Text
-                            style={[
-                                styles.categoryButtonText,
-                                selectedCategory === 4 && styles.selectedButtonText,
-                            ]}
-                        >
-                            WFH
+                            Ditolak
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -198,13 +207,16 @@ const RiwayatScreen = () => {
                         marginBottom: 20,
                     }}
                 >
-                    {visiblePresensi &&
-                        visiblePresensi.slice(startIndex, endIndex).map((item) => (
+                    {visibleCuti &&
+                        visibleCuti.slice(startIndex, endIndex).map((item) => (
                             <View key={item.id}>
-                                <History
-                                    textJudul={item.status_kehadiran}
-                                    textTimeStamp={item.tanggal}
-                                    icon={getHistoryIcon(item.status)}
+                                <CutiCards
+                                    textJudul={item.status_cuti}
+                                    verifikator={item.verifikator_2}
+                                    tanggalmulai={item.tanggal_mulai}
+                                    tanggalselesai={item.tanggal_akhir}
+                                    icon={getCutiIcon(item.status)}
+                                    created_at={item.created_at}
                                 />
                             </View>
                         ))}
@@ -254,7 +266,7 @@ const RiwayatScreen = () => {
     );
 };
 
-export default RiwayatScreen;
+export default CutiScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -263,18 +275,16 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
     },
     header: {
-        // width: "100%",
-        backgroundColor: "white",
-
-        // flexDirection: "row",
+        flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
-
         paddingHorizontal: 20,
         borderBottomWidth: 2,
         borderColor: "#DDDDDD",
+
+        backgroundColor: "#ffffff",
     },
     txtHead: {
+        width: "83%",
         fontSize: 20,
         fontWeight: "bold",
         color: "black",

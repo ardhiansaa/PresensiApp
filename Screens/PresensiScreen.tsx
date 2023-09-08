@@ -12,6 +12,7 @@ import {
     LogBox,
     ToastAndroid,
     ScrollView,
+    SafeAreaView,
 } from "react-native";
 import { NavigationParamList } from "../types/navigation";
 import Icons from "@expo/vector-icons/Ionicons";
@@ -23,6 +24,7 @@ import { useStatusPresensi } from "../src/StatusPresensi";
 import { BASE_URL } from "../config";
 import getImageMeta from "../utils/getImageMeta";
 import defaultAxios, { AxiosError } from "axios";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type PresensiData = {
     code: number;
@@ -53,6 +55,7 @@ const PresensiScreen = () => {
     const [isLoadingStatusPresensi, setIsLoadingStatusPresensi] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+    const inset = useSafeAreaInsets();
     const navigation = useNavigation<NavigationProps>();
     const onBackPressed = () => {
         navigation.navigate("Main");
@@ -117,22 +120,23 @@ const PresensiScreen = () => {
             })
             .then((response) => {
                 if (value === 1) {
-                    Alert.alert("Berhasil Presensi", response.data.message);
+                    // Alert.alert("Berhasil Presensi", response.data.message);
+                    ToastAndroid.show(`${response.data.message}`, ToastAndroid.LONG);
                     if (UserDetailsData?.user) {
                         UserDetailsData.user.validasi_presensi = true;
                     }
                 } else if (value === 2) {
-                    Alert.alert("Berhasil Izin", response.data.message);
+                    ToastAndroid.show(`${response.data.message}`, ToastAndroid.LONG);
                     if (UserDetailsData?.user) {
                         UserDetailsData.user.validasi_presensi = true;
                     }
                 } else if (value === 3) {
-                    Alert.alert("Semoga cepet sembuh:)", response.data.message);
+                    ToastAndroid.show(`${response.data.message}`, ToastAndroid.LONG);
                     if (UserDetailsData?.user) {
                         UserDetailsData.user.validasi_presensi = true;
                     }
                 } else if (value === 4) {
-                    Alert.alert("Berhasil WFH", response.data.message);
+                    ToastAndroid.show(`${response.data.message}`, ToastAndroid.LONG);
                     if (UserDetailsData?.user) {
                         UserDetailsData.user.validasi_presensi = true;
                     }
@@ -193,12 +197,13 @@ const PresensiScreen = () => {
     // console.log(value);
 
     return (
-        <View style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1 }}>
             <ScrollView
                 nestedScrollEnabled
                 style={{
                     height: deviceHeight / 1,
                     ...styles.container,
+                    paddingTop: inset.top,
                 }}
             >
                 <View
@@ -216,37 +221,34 @@ const PresensiScreen = () => {
 
                 {/* ini body */}
                 <View style={styles.body}>
-                    <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 20 }}>
+                    {/* <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 20 }}>
                         Form Presensi Harian
-                    </Text>
+                    </Text> */}
                     <View style={styles.judulComponent}>
-                        <Text style={{ fontSize: 18 }}>Nama:</Text>
+                        <Text style={{ fontSize: 18, marginBottom: 8 }}>Nama:</Text>
                         <Text
                             style={{
                                 ...styles.component,
-                                width: deviceWidth / 1.7,
                             }}
                         >
                             {UserDetailsData?.user.nama}
                         </Text>
                     </View>
                     <View style={styles.judulComponent}>
-                        <Text style={{ fontSize: 18 }}>Divisi:</Text>
+                        <Text style={{ fontSize: 18, marginBottom: 8 }}>Divisi:</Text>
                         <Text
                             style={{
                                 ...styles.component,
-                                width: deviceWidth / 1.7,
                             }}
                         >
                             {UserDetailsData?.user.divisi}
                         </Text>
                     </View>
                     <View style={styles.judulComponent}>
-                        <Text style={{ fontSize: 18 }}>Tanggal:</Text>
+                        <Text style={{ fontSize: 18, marginBottom: 8 }}>Tanggal:</Text>
                         <Text
                             style={{
                                 ...styles.component,
-                                width: deviceWidth / 1.7,
                             }}
                         >
                             {new Date().getDate()}/{new Date().getMonth() + 1}/
@@ -254,7 +256,7 @@ const PresensiScreen = () => {
                         </Text>
                     </View>
                     <View style={{ ...styles.judulComponent, zIndex: 1 }}>
-                        <Text style={{ fontSize: 18 }}>Status:</Text>
+                        <Text style={{ fontSize: 18, marginBottom: 8 }}>Status:</Text>
                         <DropDownPicker
                             placeholder="Pilih Kehadiran"
                             open={open}
@@ -265,11 +267,10 @@ const PresensiScreen = () => {
                             setItems={setItems}
                             style={{
                                 // backgroundColor: "white",
-                                width: deviceWidth / 1.7,
+
                                 padding: 10,
                             }}
                             containerStyle={{
-                                width: deviceWidth / 1.7,
                                 height: deviceHeight / 18,
                             }}
                             textStyle={{
@@ -292,12 +293,13 @@ const PresensiScreen = () => {
                     {(value === 2 || value === 3 || value === 4) && (
                         <>
                             <View style={styles.judulComponent}>
-                                <Text style={{ fontSize: 18 }}>Bukti</Text>
+                                <Text style={{ fontSize: 18, marginBottom: 8 }}>
+                                    Bukti
+                                </Text>
                                 <View>
                                     <TouchableOpacity
                                         onPress={pickPdf}
                                         style={{
-                                            width: deviceWidth / 1.7,
                                             ...styles.component,
                                             borderColor: "black",
                                             borderWidth: 1,
@@ -310,7 +312,11 @@ const PresensiScreen = () => {
                                     </TouchableOpacity>
                                     {file && (
                                         <Text style={{ padding: 5 }}>
-                                            File:
+                                            <Icons
+                                                name="ios-document-attach-outline"
+                                                color={"black"}
+                                                size={15}
+                                            />
                                             {file.name.length > 20
                                                 ? file.name.substring(0, 20) + "..."
                                                 : file.name}
@@ -320,14 +326,16 @@ const PresensiScreen = () => {
                             </View>
 
                             <View style={styles.judulComponent}>
-                                <Text style={{ fontSize: 18 }}>Keterangan</Text>
+                                <Text style={{ fontSize: 18, marginBottom: 8 }}>
+                                    Keterangan
+                                </Text>
                                 <View>
                                     <TextInput
                                         placeholder="Isi Keterangan..."
                                         value={keterangan}
                                         style={{
                                             ...styles.TextField,
-                                            width: deviceWidth / 1.7,
+
                                             borderColor: keteranganError
                                                 ? "red"
                                                 : "black", // Set border color based on validation
@@ -359,7 +367,7 @@ const PresensiScreen = () => {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -367,7 +375,7 @@ export default PresensiScreen;
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: "7%",
+        // marginTop: "7%",
         backgroundColor: "white",
     },
     header: {
@@ -398,10 +406,9 @@ const styles = StyleSheet.create({
         borderColor: "#F0F0F0",
     },
     judulComponent: {
-        flexDirection: "row",
+        flexDirection: "column",
         justifyContent: "space-between",
         marginVertical: 8,
-        alignItems: "center",
     },
     TextField: {
         backgroundColor: "white",

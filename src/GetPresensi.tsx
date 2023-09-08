@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "../services/axios";
 import { BASE_URL } from "../config";
 
-const RiwayatUrl = `${BASE_URL}/getpresensi`;
+const RiwayatPresensiUrl = `${BASE_URL}/getpresensi`;
 
 type Presensi = {
     presensi: {
@@ -25,8 +25,8 @@ type Response = {
 
 export const useGetPresensi = () => {
     const getPresensi = async () => {
-        const response = await axios.get<Response>(RiwayatUrl);
-        console.log(response.data);
+        const response = await axios.get<Response>(RiwayatPresensiUrl);
+        // console.log(response.data);
         return response.data;
     };
 

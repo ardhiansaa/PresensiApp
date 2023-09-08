@@ -6,6 +6,7 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     ActivityIndicator,
+    Text,
 } from "react-native";
 import CustomInputs from "../Components/CustomInput";
 import SignInUpButton from "../Components/SignInUpButton";
@@ -14,7 +15,9 @@ import Home from "./Home";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { NavigationParamList } from "../types/navigation";
 import { AuthContext } from "../Context/AuthContext";
-import { useForm, Controller } from "react-hook-form";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Linking } from "react-native";
+
 // interface ISignInProps {}
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 
@@ -44,11 +47,34 @@ const SignInScreen = () => {
         }
     };
 
-    const onForgotPressed = () => {
-        navigation.navigate("ResetPassword");
-    };
     const onSignUPPressed = () => {
         navigation.navigate("SignUp");
+    };
+
+    const onForgotPressed = () => {
+        // Replace `PHONE_NUMBER` with the actual WhatsApp phone number you want to message
+        const phoneNumber = "6282138095442";
+
+        // Replace `MESSAGE_TEXT` with the message you want to send
+        const messageText = "Hello, Saya Lupa Password Akun Nore dan butuh bantuan.";
+
+        // Construct the WhatsApp API link
+        const whatsappLink = `whatsapp://send?phone=${phoneNumber}&text=${messageText}`;
+
+        // Use the Linking module to open the WhatsApp link
+        Linking.canOpenURL(whatsappLink)
+            .then((supported) => {
+                if (supported) {
+                    Linking.openURL(whatsappLink);
+                } else {
+                    console.error("WhatsApp is not installed on the device.");
+                    // You can show an error message to the user here if WhatsApp is not installed.
+                }
+            })
+            .catch((error) => {
+                console.error("An error occurred while opening WhatsApp:", error);
+                // Handle any errors that occur while opening WhatsApp.
+            });
     };
 
     const { login, isLoading } = useContext(AuthContext);
@@ -75,7 +101,7 @@ const SignInScreen = () => {
     }
 
     return (
-        <View style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
                 <KeyboardAvoidingView></KeyboardAvoidingView>
                 <Image
@@ -84,19 +110,34 @@ const SignInScreen = () => {
                         width: 210,
                         height: 140,
                         alignSelf: "center",
-                        marginVertical: 30,
+                        marginTop: 30,
+                        marginBottom: 40,
                     }}
                 />
-                {/* <Text>SignIn Screens</Text> */}
+
+                {/* <Text
+                    style={{
+                        color: "#AEC2B6",
+                        alignSelf: "center",
+                        fontSize: 16,
+                        paddingBottom: 15,
+                        fontWeight: "600",
+                    }}
+                >
+                    Silahkan Masuk
+                </Text> */}
+
+                <Text style={{ color: "grey" }}>Username</Text>
                 <CustomInputs
-                    placeholder="Username"
+                    placeholder="Ketik Username anda disini..."
                     value={username}
                     setValue={setUsername}
                     secureTextEntry={false}
                     isEmpty={usernameEmpty}
                 />
+                <Text style={{ color: "grey" }}>Password</Text>
                 <CustomInputs
-                    placeholder="Password"
+                    placeholder="Ketik Password anda disini..."
                     value={password}
                     setValue={setPassword}
                     secureTextEntry={true}
@@ -110,13 +151,13 @@ const SignInScreen = () => {
           type="SECONDARY"
         /> */}
 
-                {/* <SignInUpButton
+                <SignInUpButton
                     onPress={onForgotPressed}
                     textButton="Forgot Password?"
                     type="TERTIARY"
-                /> */}
+                />
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -125,9 +166,9 @@ export default SignInScreen;
 const styles = StyleSheet.create({
     container: {
         // alignItems: "center",
-        padding: 20,
+        paddingHorizontal: 20,
         width: "100%",
-        marginTop: "7%",
+        // marginTop: "7%",
         height: "100%",
         backgroundColor: "#ffffff",
     },

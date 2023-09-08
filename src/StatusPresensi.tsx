@@ -19,7 +19,7 @@ type Response = {
 export const useStatusPresensi = () => {
     const getStatusPresensi = async () => {
         const response = await axios.get<Response>(StatusUrl);
-        console.log(response.data);
+        // console.log(response.data);
         return response.data;
     };
 

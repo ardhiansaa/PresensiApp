@@ -1,13 +1,16 @@
 import React, { FC } from "react";
 import { View, StyleSheet, Dimensions, Text } from "react-native";
 
-interface IHistoryProps {
+interface CutiCardsProps {
     textJudul: any;
     icon: React.ReactNode;
-    textTimeStamp: string;
+    created_at: number;
+    tanggalmulai: string;
+    tanggalselesai: string;
+    verifikator: string;
 }
 
-const History = (props: IHistoryProps) => {
+const CutiCards = (props: CutiCardsProps) => {
     const deviceHeight = Dimensions.get("window").height;
     const deviceWidth = Dimensions.get("window").width;
     return (
@@ -15,7 +18,7 @@ const History = (props: IHistoryProps) => {
             style={{
                 ...styles.component,
                 width: deviceWidth / 1.11,
-                height: deviceHeight / 8.8,
+                height: deviceHeight / 8,
             }}
         >
             {props.icon}
@@ -23,13 +26,19 @@ const History = (props: IHistoryProps) => {
                 <Text style={{ color: "black", fontWeight: "bold", fontSize: 18 }}>
                     {props.textJudul}
                 </Text>
-                <Text style={{ color: "grey" }}>{props.textTimeStamp}</Text>
+                <Text style={{ color: "grey" }}>Verifikator : {props.verifikator}</Text>
+                <View style={{ flexDirection: "row" }}>
+                    <Text style={{ color: "grey" }}>{props.tanggalmulai}</Text>
+                    <Text style={{ color: "grey" }}> sampai </Text>
+                    <Text style={{ color: "grey" }}>{props.tanggalselesai}</Text>
+                </View>
+                {/* <Text style={{ color: "grey" }}>Dibuat pada : {props.created_at}</Text> */}
             </View>
         </View>
     );
 };
 
-export default History;
+export default CutiCards;
 
 const styles = StyleSheet.create({
     component: {

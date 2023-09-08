@@ -21,6 +21,7 @@ import Body from "../Components/Body";
 import History from "../Components/History";
 import { useGetPresensi } from "../src/GetPresensi";
 import { useUserDetails } from "../src/UserDetails";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 const Home = () => {
@@ -51,6 +52,10 @@ const Home = () => {
         navigation.navigate("Presensi");
     };
 
+    const onCutiPressed = () => {
+        navigation.navigate("Cuti");
+    };
+
     const onLogOut = () => {
         logout();
     };
@@ -78,148 +83,185 @@ const Home = () => {
     }
 
     return (
-        <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
-            {/* ini header */}
-            <View
-                style={{
-                    height: deviceHeight / 11,
-                    ...styles.header,
-                }}
-            >
-                <View style={{ flexDirection: "row" }}>
-                    <Image
-                        source={require("../assets/logoNore.png")}
-                        style={{ width: 100, height: 50, alignSelf: "center" }}
-                    />
-                </View>
-
-                <Icon name="logout" size={30} color={"#BBBBBB"} onPress={onLogOut} />
-            </View>
-            {!userDetailsData?.user.validasi_presensi === true && (
-                <>
-                    <View
-                        style={{
-                            backgroundColor: "#3EB772",
-                            borderWidth: 0,
-                            paddingTop: 15,
-                        }}
-                    >
-                        {/* ini alert */}
-                        <View
-                            style={{
-                                height: deviceHeight / 9,
-                                justifyContent: "space-around",
-                                alignItems: "center",
-                                // borderWidth: 1,
-                            }}
-                        >
-                            <Alerts />
-                        </View>
-                    </View>
-                </>
-            )}
-            <View style={{ backgroundColor: "#3EB772" }}>
-                {/* ini main fitur */}
-                <View style={styles.mainFitur}>
-                    <View
-                        style={{
-                            // justifyContent: "space-between",
-                            paddingVertical: 10,
-                            justifyContent: "center",
-                            maxWidth: deviceWidth / 2.1,
-                            maxHeight: deviceHeight / 9,
-                        }}
-                    >
-                        <Text
-                            numberOfLines={1}
-                            style={{
-                                fontSize: 28,
-                                fontWeight: "bold",
-                            }}
-                        >
-                            {userDetailsData?.user.nama}
-                        </Text>
-                        <Text
-                            style={{ color: "#BBBBBB", fontSize: 15, fontWeight: "bold" }}
-                        >
-                            {userDetailsData?.user.divisi}
-                        </Text>
-                    </View>
-
-                    <TouchableOpacity onPress={onPresensiPressed}>
-                        <View
-                            style={{ ...styles.presensiButton, width: deviceWidth / 3 }}
-                        >
-                            <Icons name="ios-log-in-outline" size={40} color={"white"} />
-                            <Text style={styles.txtMainMenu}>Presensi</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-            </View>
-
-            {/* ini txt Presensi */}
-            <View
-                style={{
-                    backgroundColor: "white",
-                    justifyContent: "center",
-                    paddingVertical: 10,
-                    marginTop: 10,
-                }}
-            >
-                <Text style={styles.txtPresensi}>Presensi Anda</Text>
-            </View>
-
-            {/* ini body */}
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={{ backgroundColor: "white" }}
-            >
+        <SafeAreaView>
+            <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+                {/* ini header */}
                 <View
                     style={{
-                        ...styles.body,
-                        height: deviceHeight / 6,
+                        height: deviceHeight / 11,
+                        ...styles.header,
                     }}
                 >
-                    <Body
-                        textJudul="Hadir"
-                        textJumlahHari={userDetailsData?.user.hadir}
-                        icon={<Icon name="account-check" size={50} color="#3EB772" />}
-                    />
-                    <Body
-                        textJudul="Sisa Cuti"
-                        textJumlahHari={userDetailsData?.user.sisa_cuti}
-                        icon={<Icon name="briefcase-clock" size={50} color="red" />}
-                    />
-                    <Body
-                        textJudul="Sakit"
-                        textJumlahHari={userDetailsData?.user.sakit}
-                        icon={<Icon name="hospital-box" size={50} color={"#F1C93B"} />}
-                    />
-                    <Body
-                        textJudul="Izin"
-                        textJumlahHari={userDetailsData?.user.izin}
-                        icon={<Icon name="email" size={50} color="red" />}
-                    />
-                    <Body
-                        textJudul="WFH"
-                        textJumlahHari={userDetailsData?.user.WFH}
-                        icon={<Icon name="home-automation" size={50} color={"#3EB772"} />}
-                    />
+                    <View style={{ flexDirection: "row" }}>
+                        <Image
+                            source={require("../assets/logoNore.png")}
+                            style={{ width: 100, height: 50, alignSelf: "center" }}
+                        />
+                    </View>
+
+                    <Icon name="logout" size={30} color={"#BBBBBB"} onPress={onLogOut} />
                 </View>
-            </ScrollView>
+                {!userDetailsData?.user.validasi_presensi === true && (
+                    <>
+                        <View
+                            style={{
+                                backgroundColor: "#3EB772",
+                                borderWidth: 0,
+                                paddingTop: 15,
+                            }}
+                        >
+                            {/* ini alert */}
+                            <View
+                                style={{
+                                    height: deviceHeight / 9,
+                                    justifyContent: "space-around",
+                                    alignItems: "center",
+                                    // borderWidth: 1,
+                                }}
+                            >
+                                <Alerts />
+                            </View>
+                        </View>
+                    </>
+                )}
+                <View style={{ backgroundColor: "#3EB772" }}>
+                    {/* ini main fitur */}
+                    <View style={styles.mainFitur}>
+                        <View
+                            style={{
+                                // justifyContent: "space-between",
+                                // paddingVertical: 10,
+                                justifyContent: "center",
+                                maxWidth: deviceWidth / 2.1,
+                                maxHeight: deviceHeight / 9,
+                                paddingBottom: 10,
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    fontSize: 28,
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                {userDetailsData?.user.nama}
+                            </Text>
+                            <Text
+                                style={{
+                                    color: "#BBBBBB",
+                                    fontSize: 15,
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                {userDetailsData?.user.divisi}
+                            </Text>
+                        </View>
 
-            {/* ini txt Riwayat */}
-            <View
-                style={{
-                    marginTop: 10,
-                    backgroundColor: "white",
-                    paddingVertical: 10,
-                }}
-            >
-                <Text style={styles.txtRiwayat}>Riwayat Terbaru</Text>
+                        <View
+                            style={{
+                                borderTopWidth: 1,
+                                paddingTop: 15,
+                                borderColor: "#C5C7C5",
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                            }}
+                        >
+                            <TouchableOpacity onPress={onPresensiPressed}>
+                                <View
+                                    style={{
+                                        ...styles.presensiButton,
+                                        width: deviceWidth / 2.7,
+                                    }}
+                                >
+                                    {/* <Icons name="ios-log-in-outline" size={40} color={"white"} /> */}
+                                    <Text style={styles.txtMainMenu}>Presensi</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={onCutiPressed}>
+                                <View
+                                    style={{
+                                        ...styles.cutiButton,
+                                        width: deviceWidth / 2.7,
+                                    }}
+                                >
+                                    {/* <Icons name="ios-log-in-outline" size={40} color={"white"} /> */}
+                                    <Text style={styles.txtMainMenu}>Cuti</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
 
-                {/* <TouchableOpacity>
+                {/* ini txt Presensi */}
+                <View
+                    style={{
+                        backgroundColor: "white",
+                        justifyContent: "center",
+                        paddingVertical: 10,
+                        marginTop: 10,
+                    }}
+                >
+                    <Text style={styles.txtPresensi}>Presensi Anda</Text>
+                </View>
+
+                {/* ini body */}
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={{ backgroundColor: "white" }}
+                >
+                    <View
+                        style={{
+                            ...styles.body,
+                            height: deviceHeight / 7.2,
+                        }}
+                    >
+                        <Body
+                            textJudul="Hadir"
+                            textJumlahHari={userDetailsData?.user.hadir}
+                            icon={<Icon name="account-check" size={50} color="#3EB772" />}
+                        />
+                        <Body
+                            textJudul="Sisa Cuti"
+                            textJumlahHari={userDetailsData?.user.sisa_cuti}
+                            icon={<Icon name="briefcase-clock" size={50} color="red" />}
+                        />
+                        <Body
+                            textJudul="Sakit"
+                            textJumlahHari={userDetailsData?.user.sakit}
+                            icon={
+                                <Icon name="hospital-box" size={50} color={"#F1C93B"} />
+                            }
+                        />
+                        <Body
+                            textJudul="Izin"
+                            textJumlahHari={userDetailsData?.user.izin}
+                            icon={<Icon name="email" size={50} color="red" />}
+                        />
+                        <Body
+                            textJudul="WFH"
+                            textJumlahHari={userDetailsData?.user.WFH}
+                            icon={
+                                <Icon
+                                    name="home-automation"
+                                    size={50}
+                                    color={"#3EB772"}
+                                />
+                            }
+                        />
+                    </View>
+                </ScrollView>
+
+                {/* ini txt Riwayat */}
+                <View
+                    style={{
+                        marginTop: 10,
+                        backgroundColor: "white",
+                        paddingVertical: 10,
+                    }}
+                >
+                    <Text style={styles.txtRiwayat}>Riwayat Terbaru</Text>
+
+                    {/* <TouchableOpacity>
           <Text
             style={{
               color: "#229c59",
@@ -232,32 +274,33 @@ const Home = () => {
             Lihat Semua
           </Text>
         </TouchableOpacity> */}
-            </View>
-            {/* ini isi riwayat terbaru */}
-            <View
-                style={{
-                    alignItems: "center",
-                    // marginHorizontal: 25,
-                    backgroundColor: "white",
-                    paddingBottom: 20,
-                    // height: deviceHeight / 3.3,
-                }}
-            >
-                {presensiData?.data?.presensi &&
-                    presensiData?.data?.presensi
-                        .slice(-5)
-                        .reverse()
-                        .map((item) => (
-                            <View key={item.id}>
-                                <History
-                                    textJudul={item.status_kehadiran}
-                                    textTimeStamp={item.tanggal}
-                                    icon={getHistoryIcon(item.status)}
-                                />
-                            </View>
-                        ))}
-            </View>
-        </ScrollView>
+                </View>
+                {/* ini isi riwayat terbaru */}
+                <View
+                    style={{
+                        alignItems: "center",
+                        // marginHorizontal: 25,
+                        backgroundColor: "white",
+                        paddingBottom: 20,
+                        // height: deviceHeight / 3.3,
+                    }}
+                >
+                    {presensiData?.data?.presensi &&
+                        presensiData?.data?.presensi
+                            .slice(-5)
+                            .reverse()
+                            .map((item) => (
+                                <View key={item.id}>
+                                    <History
+                                        textJudul={item.status_kehadiran}
+                                        textTimeStamp={item.tanggal}
+                                        icon={getHistoryIcon(item.status)}
+                                    />
+                                </View>
+                            ))}
+                </View>
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 
@@ -266,7 +309,7 @@ export default Home;
 const styles = StyleSheet.create({
     container: {
         // alignItems: "center",
-        marginTop: "7%",
+        // marginTop: "7%",
         backgroundColor: "#F0F0F0",
     },
     header: {
@@ -284,14 +327,14 @@ const styles = StyleSheet.create({
         // borderWidth: 2,
     },
     mainFitur: {
-        flexDirection: "row",
+        flexDirection: "column",
         marginHorizontal: 20,
 
         marginVertical: 30,
         // alignContent: "center",
         justifyContent: "space-between",
         backgroundColor: "white",
-        paddingVertical: 15,
+        paddingVertical: 20,
         paddingHorizontal: 20,
         borderRadius: 20,
     },
@@ -308,7 +351,7 @@ const styles = StyleSheet.create({
     body: {
         flexDirection: "row",
         marginHorizontal: 20,
-        paddingVertical: 15,
+        paddingVertical: 5,
         // justifyContent: "space-between",
         // marginTop: 20,
         backgroundColor: "white",
@@ -332,7 +375,14 @@ const styles = StyleSheet.create({
     presensiButton: {
         backgroundColor: "#3EB772",
         borderRadius: 15,
-        padding: 15,
+        padding: 20,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    cutiButton: {
+        backgroundColor: "red",
+        borderRadius: 15,
+        padding: 20,
         justifyContent: "center",
         alignItems: "center",
     },

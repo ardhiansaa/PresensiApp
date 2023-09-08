@@ -15,6 +15,8 @@ import BarcodeScanner from "../Screens/BarcodeScanner";
 import RiwayatScreen from "../Screens/RiwayatScreen";
 import PresensiScreen from "../Screens/PresensiScreen";
 import { AuthContext } from "../Context/AuthContext";
+import CutiScreen from "../Screens/CutiScreen";
+import AjukanCutiScreen from "../Screens/AjukanCutiScreen";
 
 // interface IindexProps {
 
@@ -100,14 +102,16 @@ const Navigations = () => {
                     <Stack.Screen name="QR" component={BarcodeScanner} />
                     <Stack.Screen name="Riwayat" component={RiwayatScreen} />
                     <Stack.Screen name="Presensi" component={PresensiScreen} />
+                    <Stack.Screen name="Cuti" component={CutiScreen} />
+                    <Stack.Screen name="AjukanCuti" component={AjukanCutiScreen} />
                 </Stack.Navigator>
             ) : (
                 <Stack.Navigator screenOptions={{ headerShown: false }}>
                     <Stack.Screen name="SignIn" component={SignInScreen} />
-                    <Stack.Screen name="SignUp" component={SignUpScreen} />
+                    {/* <Stack.Screen name="SignUp" component={SignUpScreen} />
                     <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} />
                     <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-                    <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
+                    <Stack.Screen name="NewPassword" component={NewPasswordScreen} /> */}
                 </Stack.Navigator>
             )}
         </NavigationContainer>
