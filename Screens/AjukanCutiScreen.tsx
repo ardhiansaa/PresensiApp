@@ -181,7 +181,7 @@ const AjukanCutiScreen = () => {
     };
     const onSubmitPressed = () => {
         if (valueV2 === valueV1) {
-            ToastAndroid.show(`Verifikator tidak boleh sama`, ToastAndroid.LONG);
+            ToastAndroid.show(`Cek Kembali Verifikator`, ToastAndroid.LONG);
         } else if (!keterangan.trim()) {
             setKeteranganError("Keterangan wajib diisi");
         } else {
