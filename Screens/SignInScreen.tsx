@@ -96,9 +96,8 @@ const SignInScreen = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <View style={{ flex: 1 }}>
-                <View style={styles.container}>
-                    <KeyboardAvoidingView></KeyboardAvoidingView>
+            <View style={styles.container}>
+                <View>
                     <Image
                         source={require("../assets/logoNore.png")}
                         style={{
@@ -140,11 +139,6 @@ const SignInScreen = () => {
                     />
 
                     <SignInUpButton onPress={onSignInPressed} textButton="Masuk" />
-                    {/* <SignInUpButton
-          onPress={onSignUPPressed}
-          textButton="Daftar"
-          type="SECONDARY"
-        /> */}
 
                     <SignInUpButton
                         onPress={onForgotPressed}
@@ -153,20 +147,8 @@ const SignInScreen = () => {
                     />
                 </View>
 
-                <Text
-                    style={{
-                        backgroundColor: "#ffffff",
-                        justifyContent: "center",
-                        textAlign: "center",
-                        paddingVertical: 10,
-                    }}
-                >
-                    &copy; 2023. Nore Inovasi
-                </Text>
+                <Text style={styles.footerText}>&copy; 2023. Nore Inovasi</Text>
             </View>
-            {/* <View style={{ flex: 1 }}> */}
-
-            {/* </View> */}
         </SafeAreaView>
     );
 };
@@ -179,14 +161,13 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 20,
         backgroundColor: "#ffffff",
-    },
-    footer: {
-        alignItems: "center",
-        paddingBottom: 10, // Adjust as needed
+        justifyContent: "space-between",
     },
     footerText: {
         backgroundColor: "#ffffff",
         justifyContent: "center",
         textAlign: "center",
+        paddingVertical: 25,
+        color: "grey",
     },
 });
