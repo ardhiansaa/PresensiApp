@@ -132,7 +132,7 @@ const Home = () => {
                                 // justifyContent: "space-between",
                                 // paddingVertical: 10,
                                 justifyContent: "center",
-                                maxWidth: deviceWidth / 2.1,
+                                maxWidth: deviceWidth / 1.2,
                                 maxHeight: deviceHeight / 9,
                                 paddingBottom: 10,
                             }}

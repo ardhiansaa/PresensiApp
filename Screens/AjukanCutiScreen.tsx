@@ -47,30 +47,58 @@ type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 const AjukanCutiScreen = () => {
     const deviceHeight = Dimensions.get("window").height;
 
-    const [keterangan, setKeterangan] = useState<string>(
-        "Dengan ini saya mengajukan permohonan izin cuti pada tanggal ## - ## dikarenakan (tulis alasan cuti)"
-    );
-    const [keteranganError, setKeteranganError] = useState<string>("");
-
     const { data: UserDetailsData } = useUserDetails();
     const { data: VerifikatorCutiData } = useVerifikatorCuti();
     const [isLoadingStatusPresensi, setIsLoadingStatusPresensi] = useState(true);
     const [isDropdownV2Open, setIsDropdownV2Open] = useState(false);
     const [isDropdownV1Open, setIsDropdownV1Open] = useState(false);
 
-    const [dateMulai, setDateMulai] = useState<Date>(new Date());
+    const [dateMulai, setDateMulai] = useState<Date | null>(new Date());
     const [selectedModeMulai, setModeMulai] = useState<"date" | "time">("date");
     const [showTanggalMulai, setShowTanggalMulai] = useState<boolean>(false);
-    const [textTanggalMulai, setTextTanggalMulai] =
-        useState<string>("Pilih Tanggal Mulai");
+    const [textTanggalMulai, setTextTanggalMulai] = useState<string>(
+        dateMulai
+            ? dateMulai.toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+              })
+            : "Pilih Tanggal Mulai"
+    );
 
-    const [dateSelesai, setDateSelesai] = useState<Date>(new Date());
+    const [dateSelesai, setDateSelesai] = useState<Date | null>(new Date());
     const [selectedModeSelesai, setModeSelesai] = useState<"date" | "time">("date");
     const [showTanggalSelesai, setShowTanggalSelesai] = useState<boolean>(false);
     const [textTanggalSelesai, setTextTanggalSelesai] = useState<string>(
-        "Pilih Tanggal Selesai"
+        dateSelesai
+            ? dateSelesai.toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+              })
+            : "Pilih Tanggal Selesai"
     );
 
+    const [keterangan, setKeterangan] = useState<string>(
+        `Dengan ini saya mengajukan permohonan izin cuti pada tanggal ${
+            dateMulai
+                ? dateMulai.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                  })
+                : "##"
+        } - ${
+            dateSelesai
+                ? dateSelesai.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                  })
+                : "##"
+        } dikarenakan (tulis alasan cuti)`
+    );
+    const [keteranganError, setKeteranganError] = useState<string>("");
     const onChangeMulai = (event: any, selectedDate: any) => {
         const currentDate = selectedDate || dateMulai;
         setShowTanggalMulai(false);
@@ -83,40 +111,56 @@ const AjukanCutiScreen = () => {
             (tempDate.getMonth() + 1) +
             "/" +
             tempDate.getFullYear();
+
         setTextTanggalMulai(fDateMulai);
 
-        const updatedKeterangan = keterangan.replace("##", fDateMulai);
+        const updatedKeterangan = `Dengan ini saya mengajukan permohonan izin cuti pada tanggal ${fDateMulai} - ${
+            dateSelesai
+                ? dateSelesai.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                  })
+                : "##"
+        } dikarenakan (tulis alasan cuti)`;
+
         setKeterangan(updatedKeterangan);
 
-        if (dateSelesai < currentDate) {
-            // Jika tanggal selesai lebih awal dari tanggal mulai, atur tanggal selesai sama dengan tanggal mulai
+        if (dateSelesai && dateSelesai < currentDate) {
             setDateSelesai(currentDate);
             setTextTanggalSelesai(fDateMulai);
         }
     };
-
     const onChangeSelesai = (event: any, selectedDate: any) => {
         const currentDate = selectedDate || dateSelesai;
         setShowTanggalSelesai(false);
         setDateSelesai(currentDate);
 
-        let tempDateSelesai = new Date(currentDate); // Variabel baru untuk tanggal selesai
+        let tempDateSelesai = new Date(currentDate);
         let fDateSelesai =
             tempDateSelesai.getDate() +
             "/" +
             (tempDateSelesai.getMonth() + 1) +
             "/" +
             tempDateSelesai.getFullYear();
+
         setTextTanggalSelesai(fDateSelesai);
 
-        // Validasi tanggal selesai
-        if (currentDate < dateMulai) {
-            // Jika tanggal selesai lebih awal dari tanggal mulai, atur tanggal selesai sama dengan tanggal mulai
+        if (dateMulai && dateMulai > currentDate) {
             setDateSelesai(dateMulai);
-            setTextTanggalSelesai(textTanggalSelesai); // Update the textTanggalSelesai accordingly
+            setTextTanggalSelesai(textTanggalSelesai);
         }
 
-        const updatedKeterangan = keterangan.replace("##", fDateSelesai);
+        const updatedKeterangan = `Dengan ini saya mengajukan permohonan izin cuti pada tanggal ${
+            dateMulai
+                ? dateMulai.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                  })
+                : "##"
+        } - ${fDateSelesai} dikarenakan (tulis alasan cuti)`;
+
         setKeterangan(updatedKeterangan);
     };
 
@@ -136,16 +180,11 @@ const AjukanCutiScreen = () => {
         navigation.navigate("Main");
     };
     const onSubmitPressed = () => {
-        if (valueV2 != valueV1) {
-            sendDataToApi();
-        } else if (valueV2 === valueV1) {
+        if (valueV2 === valueV1) {
             ToastAndroid.show(`Verifikator tidak boleh sama`, ToastAndroid.LONG);
+        } else if (!keterangan.trim()) {
+            setKeteranganError("Keterangan wajib diisi");
         } else {
-            if (!keterangan.trim()) {
-                setKeteranganError("Keterangan wajib diisi");
-                return;
-            }
-            // Clear the error and proceed with sending data to the API
             setKeteranganError("");
             sendDataToApi();
         }
@@ -153,7 +192,7 @@ const AjukanCutiScreen = () => {
 
     const [openV2, setOpenV2] = useState(false);
     const [openV1, setOpenV1] = useState(false);
-    const [valueV2, setValueV2] = useState<number | null>(0); // Set the initial value to 1 or another suitable default
+    const [valueV2, setValueV2] = useState<number | null>(0);
     const [valueV1, setValueV1] = useState<number | null>(0);
 
     const [itemsV2, setItemsV2] = useState<{ label: string; value: number }[]>([]);
@@ -161,17 +200,21 @@ const AjukanCutiScreen = () => {
 
     const sendDataToApi = () => {
         const apiUrl = `${BASE_URL}/storecuti`;
-        const formattedDateMulai = dayjs(dateMulai).format("YYYY-MM-DD"); // Format date using dayjs
-        const formattedDateSelesai = dayjs(dateSelesai).format("YYYY-MM-DD"); // Format date using dayjs
+        const formattedDateMulai = dayjs(dateMulai).format("YYYY-MM-DD");
+        const formattedDateSelesai = dayjs(dateSelesai).format("YYYY-MM-DD");
 
         var bodyFormData = new FormData();
         bodyFormData.append("user_id", String(UserDetailsData?.user.id));
         bodyFormData.append("tanggal_mulai", formattedDateMulai);
         bodyFormData.append("tanggal_akhir", formattedDateSelesai);
-        bodyFormData.append("verifikator_2", valueV2 as any);
-        bodyFormData.append("verifikator_1", valueV1 as any);
+        if (valueV2 && valueV2 > 0) {
+            bodyFormData.append("verifikator_2", String(valueV2));
+        }
+        if (valueV1 && valueV1 > 0) {
+            bodyFormData.append("verifikator_1", String(valueV1));
+        }
         bodyFormData.append("alasan", keterangan);
-
+        console.log(bodyFormData);
         axios
             .post<CutiData>(apiUrl, bodyFormData, {
                 headers: {
@@ -181,6 +224,9 @@ const AjukanCutiScreen = () => {
             .then((response) => {
                 const { code, message } = response.data;
                 if (code === 200) {
+                    ToastAndroid.show(message, ToastAndroid.LONG);
+                }
+                if (code === 201) {
                     ToastAndroid.show(message, ToastAndroid.LONG);
                 }
             })
@@ -193,7 +239,6 @@ const AjukanCutiScreen = () => {
         if (defaultAxios.isAxiosError(error)) {
             const serverError = error as AxiosError<any>;
             if (serverError && serverError.response) {
-                // console.log(JSON.stringify(serverError.response.data));
                 ToastAndroid.show(
                     `${serverError.response.data.message}`,
                     ToastAndroid.LONG
@@ -221,6 +266,7 @@ const AjukanCutiScreen = () => {
             }
         }
     }, [isDropdownV2Open]);
+    console.log(valueV2);
 
     useEffect(() => {
         if (isDropdownV1Open) {
@@ -321,38 +367,42 @@ const AjukanCutiScreen = () => {
                         />
                     </View>
 
-                    <View style={{ ...styles.judulComponent, zIndex: 1 }}>
-                        <Text style={{ fontSize: 18, marginBottom: 8 }}>
-                            Verifikator 1
-                        </Text>
-                        <DropDownPicker
-                            placeholder="Pilih Verifikator 1"
-                            open={openV1}
-                            value={valueV1}
-                            items={itemsV1}
-                            setOpen={setOpenV1}
-                            setValue={setValueV1}
-                            setItems={setItemsV1}
-                            style={{
-                                // backgroundColor: "white",
-                                // width: deviceWidth / 1.7,
-                                padding: 10,
-                            }}
-                            containerStyle={{
-                                // width: deviceWidth / 1.7,
-                                height: deviceHeight / 18,
-                            }}
-                            textStyle={{
-                                fontSize: 16,
-                            }}
-                            onOpen={() => setIsDropdownV1Open(true)}
-                            onClose={() => setIsDropdownV1Open(false)}
-                            // onChangeValue={(selectedValue) => {
-                            //     console.log("Selected Value:", selectedValue);
-                            //     setValue(selectedValue);
-                            // }}
-                        />
-                    </View>
+                    {valueV2 != 10 && (
+                        <>
+                            <View style={{ ...styles.judulComponent, zIndex: 1 }}>
+                                <Text style={{ fontSize: 18, marginBottom: 8 }}>
+                                    Verifikator 1
+                                </Text>
+                                <DropDownPicker
+                                    placeholder="Pilih Verifikator 1"
+                                    open={openV1}
+                                    value={valueV1}
+                                    items={itemsV1}
+                                    setOpen={setOpenV1}
+                                    setValue={setValueV1}
+                                    setItems={setItemsV1}
+                                    style={{
+                                        // backgroundColor: "white",
+                                        // width: deviceWidth / 1.7,
+                                        padding: 10,
+                                    }}
+                                    containerStyle={{
+                                        // width: deviceWidth / 1.7,
+                                        height: deviceHeight / 18,
+                                    }}
+                                    textStyle={{
+                                        fontSize: 16,
+                                    }}
+                                    onOpen={() => setIsDropdownV1Open(true)}
+                                    onClose={() => setIsDropdownV1Open(false)}
+                                    // onChangeValue={(selectedValue) => {
+                                    //     console.log("Selected Value:", selectedValue);
+                                    //     setValue(selectedValue);
+                                    // }}
+                                />
+                            </View>
+                        </>
+                    )}
 
                     <View style={styles.judulComponent}>
                         <Text style={{ fontSize: 18, marginBottom: 8 }}>
@@ -371,7 +421,7 @@ const AjukanCutiScreen = () => {
                         {showTanggalMulai && (
                             <DateTimePicker
                                 testID="dateTimePicker"
-                                value={dateMulai}
+                                value={dateMulai || new Date()}
                                 mode={selectedModeMulai}
                                 display="default"
                                 onChange={onChangeMulai}
@@ -396,7 +446,7 @@ const AjukanCutiScreen = () => {
                         {showTanggalSelesai && (
                             <DateTimePicker
                                 testID="dateTimePicker"
-                                value={dateSelesai}
+                                value={dateSelesai || new Date()}
                                 mode={selectedModeSelesai}
                                 display="default"
                                 onChange={onChangeSelesai}

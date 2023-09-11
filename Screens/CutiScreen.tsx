@@ -34,7 +34,7 @@ const CutiScreen = () => {
 
     const handleCategorySelect = (category: number | null) => {
         setSelectedCategory(category);
-        setCurrentPage(1); // Reset the current page when selecting a new category
+        setCurrentPage(1);
     };
 
     const inset = useSafeAreaInsets();

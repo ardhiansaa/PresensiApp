@@ -7,6 +7,7 @@ import {
     KeyboardAvoidingView,
     ActivityIndicator,
     Text,
+    Platform,
 } from "react-native";
 import CustomInputs from "../Components/CustomInput";
 import SignInUpButton from "../Components/SignInUpButton";
@@ -52,28 +53,22 @@ const SignInScreen = () => {
     };
 
     const onForgotPressed = () => {
-        // Replace `PHONE_NUMBER` with the actual WhatsApp phone number you want to message
         const phoneNumber = "6282138095442";
 
-        // Replace `MESSAGE_TEXT` with the message you want to send
         const messageText = "Hello, Saya Lupa Password Akun Nore dan butuh bantuan.";
 
-        // Construct the WhatsApp API link
         const whatsappLink = `whatsapp://send?phone=${phoneNumber}&text=${messageText}`;
 
-        // Use the Linking module to open the WhatsApp link
         Linking.canOpenURL(whatsappLink)
             .then((supported) => {
                 if (supported) {
                     Linking.openURL(whatsappLink);
                 } else {
                     console.error("WhatsApp is not installed on the device.");
-                    // You can show an error message to the user here if WhatsApp is not installed.
                 }
             })
             .catch((error) => {
                 console.error("An error occurred while opening WhatsApp:", error);
-                // Handle any errors that occur while opening WhatsApp.
             });
     };
 
@@ -92,7 +87,6 @@ const SignInScreen = () => {
                 style={{
                     height: "100%",
                     justifyContent: "center",
-                    // alignItems: "center",
                 }}
             >
                 {getContent()}
@@ -102,20 +96,21 @@ const SignInScreen = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView style={styles.container}>
-                <KeyboardAvoidingView></KeyboardAvoidingView>
-                <Image
-                    source={require("../assets/logoNore.png")}
-                    style={{
-                        width: 210,
-                        height: 140,
-                        alignSelf: "center",
-                        marginTop: 30,
-                        marginBottom: 40,
-                    }}
-                />
+            <View style={{ flex: 1 }}>
+                <View style={styles.container}>
+                    <KeyboardAvoidingView></KeyboardAvoidingView>
+                    <Image
+                        source={require("../assets/logoNore.png")}
+                        style={{
+                            width: 210,
+                            height: 140,
+                            alignSelf: "center",
+                            marginTop: 30,
+                            marginBottom: 40,
+                        }}
+                    />
 
-                {/* <Text
+                    {/* <Text
                     style={{
                         color: "#AEC2B6",
                         alignSelf: "center",
@@ -127,36 +122,51 @@ const SignInScreen = () => {
                     Silahkan Masuk
                 </Text> */}
 
-                <Text style={{ color: "grey" }}>Username</Text>
-                <CustomInputs
-                    placeholder="Ketik Username anda disini..."
-                    value={username}
-                    setValue={setUsername}
-                    secureTextEntry={false}
-                    isEmpty={usernameEmpty}
-                />
-                <Text style={{ color: "grey" }}>Password</Text>
-                <CustomInputs
-                    placeholder="Ketik Password anda disini..."
-                    value={password}
-                    setValue={setPassword}
-                    secureTextEntry={true}
-                    isEmpty={passwordEmpty}
-                />
+                    <Text style={{ color: "grey" }}>Username</Text>
+                    <CustomInputs
+                        placeholder="Ketik Username anda disini..."
+                        value={username}
+                        setValue={setUsername}
+                        secureTextEntry={false}
+                        isEmpty={usernameEmpty}
+                    />
+                    <Text style={{ color: "grey" }}>Password</Text>
+                    <CustomInputs
+                        placeholder="Ketik Password anda disini..."
+                        value={password}
+                        setValue={setPassword}
+                        secureTextEntry={true}
+                        isEmpty={passwordEmpty}
+                    />
 
-                <SignInUpButton onPress={onSignInPressed} textButton="Masuk" />
-                {/* <SignInUpButton
+                    <SignInUpButton onPress={onSignInPressed} textButton="Masuk" />
+                    {/* <SignInUpButton
           onPress={onSignUPPressed}
           textButton="Daftar"
           type="SECONDARY"
         /> */}
 
-                <SignInUpButton
-                    onPress={onForgotPressed}
-                    textButton="Forgot Password?"
-                    type="TERTIARY"
-                />
-            </ScrollView>
+                    <SignInUpButton
+                        onPress={onForgotPressed}
+                        textButton="Forgot Password?"
+                        type="TERTIARY"
+                    />
+                </View>
+
+                <Text
+                    style={{
+                        backgroundColor: "#ffffff",
+                        justifyContent: "center",
+                        textAlign: "center",
+                        paddingVertical: 10,
+                    }}
+                >
+                    &copy; 2023. Nore Inovasi
+                </Text>
+            </View>
+            {/* <View style={{ flex: 1 }}> */}
+
+            {/* </View> */}
         </SafeAreaView>
     );
 };
@@ -166,10 +176,17 @@ export default SignInScreen;
 const styles = StyleSheet.create({
     container: {
         // alignItems: "center",
+        flex: 1,
         paddingHorizontal: 20,
-        width: "100%",
-        // marginTop: "7%",
-        height: "100%",
         backgroundColor: "#ffffff",
+    },
+    footer: {
+        alignItems: "center",
+        paddingBottom: 10, // Adjust as needed
+    },
+    footerText: {
+        backgroundColor: "#ffffff",
+        justifyContent: "center",
+        textAlign: "center",
     },
 });
