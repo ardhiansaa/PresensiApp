@@ -24,7 +24,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 // }
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const CutiScreen = () => {
     const deviceHeight = Dimensions.get("window").height;

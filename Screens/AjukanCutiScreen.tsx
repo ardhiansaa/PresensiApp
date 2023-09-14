@@ -266,7 +266,6 @@ const AjukanCutiScreen = () => {
             }
         }
     }, [isDropdownV2Open]);
-    console.log(valueV2);
 
     useEffect(() => {
         if (isDropdownV1Open) {

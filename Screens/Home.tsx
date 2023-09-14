@@ -21,7 +21,7 @@ import Body from "../Components/Body";
 import History from "../Components/History";
 import { useGetPresensi } from "../src/GetPresensi";
 import { useUserDetails } from "../src/UserDetails";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 type NavigationProps = NativeStackNavigationProp<NavigationParamList>;
 const Home = () => {
@@ -31,6 +31,7 @@ const Home = () => {
     const { data: presensiData, isLoading } = useGetPresensi();
     const { data: userDetailsData } = useUserDetails();
 
+    const inset = useSafeAreaInsets();
     const navigation = useNavigation<NavigationProps>();
 
     const getHistoryIcon = (status: number) => {

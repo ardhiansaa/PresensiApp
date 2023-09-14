@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
         height: "100%",
         backgroundColor: "transparent",
         marginHorizontal: 15,
+        opacity: 0.4,
     },
     text: {
         marginTop: 700, // Adjust this value as needed
